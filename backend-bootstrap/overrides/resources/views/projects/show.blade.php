@@ -39,6 +39,30 @@
                                 <div class="text-sm text-gray-600">Worker job id</div>
                                 <div class="font-mono text-sm">{{ $project->worker_job_id ?? '—' }}</div>
                             </div>
+
+                            <div>
+                                <div class="text-sm text-gray-600">Project artifacts</div>
+                                <div class="mt-1 text-sm space-x-3">
+                                    @if ($project->transcript_json_path)
+                                        <a class="text-indigo-600 hover:text-indigo-900" href="{{ route('projects.artifacts.transcript', $project) }}">transcript.json</a>
+                                    @else
+                                        <span class="text-gray-400">transcript.json —</span>
+                                    @endif
+
+                                    @if ($project->subtitles_srt_path)
+                                        <a class="text-indigo-600 hover:text-indigo-900" href="{{ route('projects.artifacts.subtitles', $project) }}">subtitles.srt</a>
+                                    @else
+                                        <span class="text-gray-400">subtitles.srt —</span>
+                                    @endif
+
+                                    @if ($project->clips_json_path)
+                                        <a class="text-indigo-600 hover:text-indigo-900" href="{{ route('projects.artifacts.clips', $project) }}">clips.json</a>
+                                    @else
+                                        <span class="text-gray-400">clips.json —</span>
+                                    @endif
+                                </div>
+                            </div>
+
                             @if ($project->error)
                                 <div>
                                     <div class="text-sm text-gray-600">Error</div>
@@ -101,11 +125,19 @@
                                                     @endif
                                                 </td>
                                                 <td class="px-3 py-2 text-sm">
-                                                    @if ($clip->subtitles_ass_path)
-                                                        <a class="text-indigo-600 hover:text-indigo-900" href="{{ route('clips.subtitles.ass', $clip) }}">.ass</a>
-                                                    @else
-                                                        <span class="text-gray-400">—</span>
-                                                    @endif
+                                                    <div class="space-x-3">
+                                                        @if ($clip->subtitles_ass_path)
+                                                            <a class="text-indigo-600 hover:text-indigo-900" href="{{ route('clips.subtitles.ass', $clip) }}">.ass</a>
+                                                        @else
+                                                            <span class="text-gray-400">.ass —</span>
+                                                        @endif
+
+                                                        @if ($clip->subtitles_srt_path)
+                                                            <a class="text-indigo-600 hover:text-indigo-900" href="{{ route('clips.subtitles.srt', $clip) }}">.srt</a>
+                                                        @else
+                                                            <span class="text-gray-400">.srt —</span>
+                                                        @endif
+                                                    </div>
                                                 </td>
                                                 <td class="px-3 py-2 text-right">
                                                     <a class="text-indigo-600 hover:text-indigo-900" href="{{ route('clips.show', $clip) }}">Details</a>
@@ -150,7 +182,7 @@
     <script>
         (function () {
             const statusUrl = @json(route('projects.status', $project));
-            let lastStatus = @json($project->status->value);
+            let lastStatus = @json($project->status?->value ?? $project->status);
 
             const els = {
                 status: document.getElementById('project-status'),

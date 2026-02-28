@@ -44,6 +44,23 @@ class ClipAssetController extends Controller
         );
     }
 
+    public function downloadSrt(Request $request, Clip $clip): BinaryFileResponse
+    {
+        $this->authorize('view', $clip);
+
+        $path = (string) ($clip->subtitles_srt_path ?? '');
+        if ($path === '') {
+            abort(404);
+        }
+
+        return $this->serveLocalFile(
+            absolutePath: $path,
+            contentType: 'text/plain; charset=utf-8',
+            downloadName: ($clip->external_id ?? (string) $clip->id).'.srt',
+            inline: false,
+        );
+    }
+
     private function serveLocalFile(
         string $absolutePath,
         string $contentType,

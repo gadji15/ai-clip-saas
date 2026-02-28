@@ -13,6 +13,8 @@ class TikTokAccount extends Model
 {
     use HasUuids;
 
+    protected $table = 'tiktok_accounts';
+
     protected $fillable = [
         'username',
         'status',

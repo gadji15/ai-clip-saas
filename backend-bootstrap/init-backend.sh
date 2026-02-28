@@ -3,11 +3,60 @@ set -euo pipefail
 
 cd /var/www/backend
 
+fix_env_perms() {
+  if [ -f .env ]; then
+    chown "${DOCKER_UID:-1000}":"${DOCKER_GID:-1000}" .env 2>/dev/null || true
+    chmod 660 .env 2>/dev/null || true
+  fi
+}
+
+normalize_app_key() {
+  # If APP_KEY appears multiple times, Laravel's Dotenv loader will use the first.
+  # Keep exactly one (the last non-empty value).
+  if [ -f .env ]; then
+    local val
+    val="$(grep -E '^APP_KEY=' .env | tail -n 1 | cut -d= -f2- | tr -d '[:space:]')"
+    if [ -n "$val" ]; then
+      sed -i '/^APP_KEY=/d' .env
+      echo "APP_KEY=${val}" >> .env
+    fi
+    fix_env_perms
+  fi
+}
+
+# If running as root (backend_init), fix ownership once then drop privileges.
+if [ "$(id -u)" = "0" ]; then
+  chown -R "${DOCKER_UID:-1000}":"${DOCKER_GID:-1000}" /var/www/backend || true
+  chmod -R ug+rwX /var/www/backend || true
+
+  # Re-run the script as the non-root runtime user to avoid creating root-owned files
+  # like backend/.env (root:root 0600).
+  if [ -z "${BACKEND_INIT_DROPPED_PRIVS:-}" ] && command -v gosu >/dev/null 2>&1; then
+    export BACKEND_INIT_DROPPED_PRIVS=1
+    exec gosu "${DOCKER_UID:-1000}:${DOCKER_GID:-1000}" /bin/bash /bootstrap/init-backend.sh
+  fi
+fi
+
 echo "[backend_init] ensuring Laravel project exists in /var/www/backend" >&2
 
+# If the bind-mounted directory is non-empty but doesn't contain a Laravel app,
+# composer create-project will fail.
 if [ ! -f artisan ]; then
-  echo "[backend_init] scaffolding Laravel 11 into /var/www/backend" >&2
-  composer create-project laravel/laravel:^11.0 .
+  if [ -e .env ] || [ -e composer.json ] || [ -d vendor ]; then
+    echo "[backend_init] artisan missing but project files exist; continuing" >&2
+  else
+    if [ "$(ls -A 2>/dev/null | wc -l | tr -d ' ')" != "0" ]; then
+      echo "[backend_init] ERROR: /var/www/backend is not empty but no Laravel project was found." >&2
+      echo "[backend_init] If this is due to permission issues, run on the host:" >&2
+      echo "[backend_init]   sudo chown -R \"$USER\":\"$USER\" backend" >&2
+      echo "[backend_init] or delete the directory:" >&2
+      echo "[backend_init]   sudo rm -rf backend" >&2
+      exit 1
+    fi
+
+    echo "[backend_init] scaffolding Laravel 11 into /var/www/backend" >&2
+    composer create-project laravel/laravel:^11.0 .
+  fi
 fi
 
 if [ ! -f vendor/autoload.php ]; then
@@ -19,6 +68,8 @@ if [ ! -f .env ]; then
   echo "[backend_init] creating .env from .env.example" >&2
   cp .env.example .env
 fi
+
+fix_env_perms
 
 upsert_env_kv() {
   local key="$1"
@@ -48,12 +99,7 @@ upsert_env_kv() {
   mv "$tmp" "$file"
 }
 
-# Laravel 11's default .env.example uses sqlite. In Docker we run MySQL and we
-# also want to avoid requiring DB tables for sessions on the first boot.
-#
-# We sync/force the relevant values into .env from container environment
-# variables (docker-compose.yml), and export them so the current init process
-# (artisan, MySQL wait, etc.) is consistent too.
+# Sync runtime env to .env so artisan + app are consistent.
 {
   echo "[backend_init] syncing runtime env to .env" >&2
 
@@ -89,16 +135,23 @@ upsert_env_kv() {
   export QUEUE_CONNECTION="$QUEUE_CONNECTION_EFFECTIVE"
   export SESSION_DRIVER="$SESSION_DRIVER_EFFECTIVE"
   export CACHE_STORE="$CACHE_STORE_EFFECTIVE"
+
+  fix_env_perms
 }
 
-# Avoid hard-to-debug mismatches between web and CLI caused by stale cached
-# config/routes in the bind-mounted ./backend volume.
 rm -f bootstrap/cache/config.php bootstrap/cache/routes*.php bootstrap/cache/events.php || true
 
-# Ensure APP_KEY exists
-if ! grep -q "^APP_KEY=base64:" .env; then
+mkdir -p storage/framework/{cache,data,sessions,views} storage/logs bootstrap/cache
+chown -R "${DOCKER_UID:-1000}":"${DOCKER_GID:-1000}" storage bootstrap/cache || true
+chmod -R ug+rwX storage bootstrap/cache || true
+
+# Ensure APP_KEY exists (and only appears once).
+normalize_app_key
+
+if ! grep -q "^APP_KEY=" .env || [ "$(grep -E "^APP_KEY=" .env | head -n 1 | cut -d= -f2- | tr -d '[:space:]')" = "" ]; then
   echo "[backend_init] generating APP_KEY" >&2
   php artisan key:generate --force
+  normalize_app_key
 fi
 
 # Install Breeze (Blade) once
@@ -115,10 +168,15 @@ mkdir -p /var/www/backend
 
 tar -C /bootstrap/overrides -cf - . | tar -C /var/www/backend -xf -
 
-# If .env was created from Laravel's default .env.example earlier, it may be
-# missing the repo-specific variables added by our overrides.
-# (Laravel's Dotenv loader is immutable, so container env still wins; this is
-# just for convenience when inspecting / editing .env.)
+# Guard against accidental "- >" sequences that break PHP parsing in Blade.
+if command -v find >/dev/null 2>&1 && command -v sed >/dev/null 2>&1; then
+  find resources/views -type f -name "*.blade.php" -print0 2>/dev/null | xargs -0 sed -i -E 's/-[[:space:]]*>/->/g' 2>/dev/null || true
+fi
+
+rm -f storage/framework/views/*.php 2>/dev/null || true
+php artisan view:clear || true
+
+# Append missing repo-specific vars for convenience.
 for kv in \
   "ADMIN_EMAILS=${ADMIN_EMAILS:-admin@example.com}" \
   "ADMIN_PASSWORD=${ADMIN_PASSWORD:-password}" \
@@ -134,6 +192,8 @@ for kv in \
     echo "${kv}" >> .env
   fi
 done
+
+fix_env_perms
 
 # Wait for MySQL
 if [ "${DB_CONNECTION:-}" = "mysql" ]; then
@@ -167,12 +227,9 @@ if [ ! -f public/build/manifest.json ]; then
     echo "[backend_init] building frontend assets" >&2
     npm install
     npm run build
-  else
-    echo "[backend_init] npm not found; skipping frontend asset build" >&2
   fi
 fi
 
-# Migrate + seed (admin user)
 echo "[backend_init] running migrations" >&2
 php artisan migrate --force
 

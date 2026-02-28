@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import httpx
 
-from video_worker.callback import JobCallbackPayload, JobStatus, post_callback
+from video_worker.callback import ClipArtifact, JobArtifacts, JobCallbackPayload, JobStatus, post_callback
 
 
 def test_post_callback_sends_header_and_json(monkeypatch) -> None:
@@ -13,7 +13,7 @@ def test_post_callback_sends_header_and_json(monkeypatch) -> None:
         seen["json"] = json
         seen["headers"] = headers
         seen["timeout"] = timeout
-        return httpx.Response(200)
+        return httpx.Response(200, request=httpx.Request("POST", url))
 
     monkeypatch.setattr("video_worker.callback.httpx.post", fake_post)
 
@@ -57,3 +57,28 @@ def test_job_callback_payload_model_dump_includes_progress_fields() -> None:
     assert data["stage"] == "transcribe"
     assert data["progress_percent"] == 50
     assert data["message"] == "Transcribing audio"
+
+
+def test_callback_payload_includes_clip_subtitles_srt_path() -> None:
+    payload = JobCallbackPayload(
+        job_id="job_1",
+        project_id="proj_1",
+        status=JobStatus.completed,
+        artifacts=JobArtifacts(
+            clips=[
+                ClipArtifact(
+                    clip_id="clip_001",
+                    start_seconds=0.0,
+                    end_seconds=10.0,
+                    score=0.5,
+                    video_path="/shared/clip_001/video.mp4",
+                    subtitles_ass_path="/shared/clip_001/subtitles.ass",
+                    subtitles_srt_path="/shared/clip_001/subtitles.srt",
+                )
+            ]
+        ),
+    )
+
+    data = payload.model_dump(mode="json")
+
+    assert data["artifacts"]["clips"][0]["subtitles_srt_path"] == "/shared/clip_001/subtitles.srt"

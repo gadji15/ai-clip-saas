@@ -25,6 +25,7 @@ class ClipArtifact(BaseModel):
 
     video_path: str
     subtitles_ass_path: str
+    subtitles_srt_path: str
 
 
 class JobArtifacts(BaseModel):
@@ -75,7 +76,10 @@ def post_callback(
         response = httpx.post(
             callback_url,
             json=payload.model_dump(mode="json"),
-            headers={"X-Callback-Secret": callback_secret},
+            headers={
+                "X-Callback-Secret": callback_secret,
+                "Accept": "application/json",
+            },
             timeout=timeout_seconds,
         )
         response.raise_for_status()

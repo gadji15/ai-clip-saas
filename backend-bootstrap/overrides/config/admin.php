@@ -20,6 +20,13 @@ return [
     'video_worker_api_key' => (string) env('VIDEO_WORKER_API_KEY', ''),
     'video_worker_callback_secret' => (string) env('VIDEO_WORKER_CALLBACK_SECRET', ''),
 
+    // tiktok-bot integration (optional)
+    'tiktok_bot_base_url' => (string) env('TIKTOK_BOT_BASE_URL', ''),
+
+    // Header shared with tiktok-bot: X-Internal-Secret
+    // We reuse the same INTERNAL_API_SECRET used for the internal API.
+    'tiktok_bot_internal_secret' => (string) env('INTERNAL_API_SECRET', ''),
+
     'worker_callback_url' => (string) env(
         'WORKER_CALLBACK_URL',
         rtrim((string) env('APP_URL', ''), '/').'/api/worker/callback',

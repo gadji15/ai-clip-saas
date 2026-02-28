@@ -41,7 +41,8 @@ async function publishClip({ clipPath, caption, accountId, artifactDir }) {
     }
 
     // --- Upload flow TODO ---
-    // We keep it safe for now. Implementing TikTok upload automation is brittle.
+    // Intentionally conservative: we currently do not automate upload.
+    // We still persist storageState so session refreshes are kept.
     void caption;
 
     const newState = await context.storageState();

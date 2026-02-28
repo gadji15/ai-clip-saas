@@ -44,9 +44,14 @@ function createPublishProcessor() {
       }
 
       // stub
-      await writeJson(path.join(jobDir, 'result.json'), { ok: true, result: { status: 'stubbed' } });
+      const result = {
+        status: 'stubbed',
+        accountId: data.accountId,
+        clipPath: data.clipPath,
+      };
+      await writeJson(path.join(jobDir, 'result.json'), { ok: true, result });
       logger.info({ job_id: jobId, took_ms: Date.now() - startedAt }, 'publish.done.stub');
-      return { status: 'stubbed' };
+      return result;
     } catch (err) {
       await writeJson(path.join(jobDir, 'error.json'), { ok: false, error: logger.serializeError(err) });
       logger.error({ job_id: jobId, err: logger.serializeError(err) }, 'publish.failed');
