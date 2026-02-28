@@ -20,6 +20,81 @@ if [ ! -f .env ]; then
   cp .env.example .env
 fi
 
+upsert_env_kv() {
+  local key="$1"
+  local value="$2"
+  local file="${3:-.env}"
+
+  local tmp
+  tmp="$(mktemp)"
+
+  awk -v k="$key" -v v="$value" '
+    BEGIN { done = 0 }
+    $0 ~ ("^" k "=") {
+      if (!done) {
+        print k "=" v
+        done = 1
+      }
+      next
+    }
+    { print }
+    END {
+      if (!done) {
+        print k "=" v
+      }
+    }
+  ' "$file" > "$tmp"
+
+  mv "$tmp" "$file"
+}
+
+# Laravel 11's default .env.example uses sqlite. In Docker we run MySQL and we
+# also want to avoid requiring DB tables for sessions on the first boot.
+#
+# We sync/force the relevant values into .env from container environment
+# variables (docker-compose.yml), and export them so the current init process
+# (artisan, MySQL wait, etc.) is consistent too.
+{
+  echo "[backend_init] syncing runtime env to .env" >&2
+
+  DB_CONNECTION_EFFECTIVE="${DB_CONNECTION:-mysql}"
+  DB_HOST_EFFECTIVE="${DB_HOST:-db}"
+  DB_PORT_EFFECTIVE="${DB_PORT:-3306}"
+  DB_DATABASE_EFFECTIVE="${DB_DATABASE:-backend}"
+  DB_USERNAME_EFFECTIVE="${DB_USERNAME:-backend}"
+  DB_PASSWORD_EFFECTIVE="${DB_PASSWORD:-backend}"
+
+  QUEUE_CONNECTION_EFFECTIVE="${QUEUE_CONNECTION:-database}"
+  SESSION_DRIVER_EFFECTIVE="${SESSION_DRIVER:-file}"
+  CACHE_STORE_EFFECTIVE="${CACHE_STORE:-file}"
+
+  upsert_env_kv DB_CONNECTION "$DB_CONNECTION_EFFECTIVE"
+  upsert_env_kv DB_HOST "$DB_HOST_EFFECTIVE"
+  upsert_env_kv DB_PORT "$DB_PORT_EFFECTIVE"
+  upsert_env_kv DB_DATABASE "$DB_DATABASE_EFFECTIVE"
+  upsert_env_kv DB_USERNAME "$DB_USERNAME_EFFECTIVE"
+  upsert_env_kv DB_PASSWORD "$DB_PASSWORD_EFFECTIVE"
+
+  upsert_env_kv QUEUE_CONNECTION "$QUEUE_CONNECTION_EFFECTIVE"
+  upsert_env_kv SESSION_DRIVER "$SESSION_DRIVER_EFFECTIVE"
+  upsert_env_kv CACHE_STORE "$CACHE_STORE_EFFECTIVE"
+
+  export DB_CONNECTION="$DB_CONNECTION_EFFECTIVE"
+  export DB_HOST="$DB_HOST_EFFECTIVE"
+  export DB_PORT="$DB_PORT_EFFECTIVE"
+  export DB_DATABASE="$DB_DATABASE_EFFECTIVE"
+  export DB_USERNAME="$DB_USERNAME_EFFECTIVE"
+  export DB_PASSWORD="$DB_PASSWORD_EFFECTIVE"
+
+  export QUEUE_CONNECTION="$QUEUE_CONNECTION_EFFECTIVE"
+  export SESSION_DRIVER="$SESSION_DRIVER_EFFECTIVE"
+  export CACHE_STORE="$CACHE_STORE_EFFECTIVE"
+}
+
+# Avoid hard-to-debug mismatches between web and CLI caused by stale cached
+# config/routes in the bind-mounted ./backend volume.
+rm -f bootstrap/cache/config.php bootstrap/cache/routes*.php bootstrap/cache/events.php || true
+
 # Ensure APP_KEY exists
 if ! grep -q "^APP_KEY=base64:" .env; then
   echo "[backend_init] generating APP_KEY" >&2
