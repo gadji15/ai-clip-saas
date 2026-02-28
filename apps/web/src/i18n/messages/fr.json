@@ -1,0 +1,15 @@
+{
+  "app": {
+    "name": "YouTok",
+    "nav": {
+      "dashboard": "Tableau de bord",
+      "projects": "Projets",
+      "billing": "Facturation",
+      "settings": "Paramètres"
+    }
+  },
+  "dashboard": {
+    "title": "Tableau de bord",
+    "subtitle": "Suivez vos projets et l'état du pipeline."
+  }
+}
