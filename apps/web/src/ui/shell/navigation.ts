@@ -1,3 +1,5 @@
+'use client';
+
 import {
   CreditCard,
   FolderKanban,
@@ -66,12 +68,12 @@ export function isNavItemActive({
   return current === target || current.startsWith(`${target}/`);
 }
 
-export function getActiveNavItem({
+export const getActiveNavItem = ({
   pathname,
   locale,
 }: {
   pathname: string;
   locale: string;
-}) {
+}) => {
   return appNavItems.find((item) => isNavItemActive({ pathname, locale, href: item.href })) || appNavItems[0];
-}
+};
