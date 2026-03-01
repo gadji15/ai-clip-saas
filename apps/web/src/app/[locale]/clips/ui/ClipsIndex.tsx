@@ -89,7 +89,7 @@ export function ClipsIndex() {
       <CardHeader className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <div className="min-w-0">
           <CardTitle>{t('listTitle')}</CardTitle>
-          <div className="mt-1 text-sm text-slate-500">
+          <div className="mt-1 text-sm text-[var(--text-muted)]">
             {hasAny ? t('count', { shown: filtered.length, total: mockClips.length }) : t('countEmpty')}
           </div>
         </div>
@@ -146,9 +146,9 @@ export function ClipsIndex() {
             actionHref={`/${locale}/projects`}
           />
         ) : filtered.length === 0 ? (
-          <div className="rounded-xl border border-slate-200 bg-slate-50 p-6">
-            <div className="text-sm font-semibold text-slate-900">{t('noResults.title')}</div>
-            <div className="mt-1 text-sm text-slate-600">{t('noResults.subtitle')}</div>
+          <div className="rounded-xl border border-[color:var(--border)] bg-[var(--surface-muted)] p-6">
+            <div className="text-sm font-semibold text-[var(--text)]">{t('noResults.title')}</div>
+            <div className="mt-1 text-sm text-[var(--text-muted)]">{t('noResults.subtitle')}</div>
             <div className="mt-4 flex items-center gap-2">
               <Button
                 onClick={() => {
@@ -161,8 +161,8 @@ export function ClipsIndex() {
             </div>
           </div>
         ) : view === 'table' ? (
-          <div className="overflow-hidden rounded-lg border border-slate-200">
-            <div className="grid grid-cols-12 bg-slate-50 px-4 py-2 text-xs font-medium text-slate-500">
+          <div className="overflow-hidden rounded-lg border border-[color:var(--border)] bg-[var(--surface)]">
+            <div className="grid grid-cols-12 bg-[var(--surface-muted)] px-4 py-2 text-xs font-medium text-[var(--text-muted)]">
               <div className="col-span-5">{t('table.clip')}</div>
               <div className="col-span-3">{t('table.project')}</div>
               <div className="col-span-2">{t('table.status')}</div>
@@ -170,19 +170,19 @@ export function ClipsIndex() {
               <div className="col-span-1 text-right">{t('table.created')}</div>
             </div>
 
-            <div className="divide-y divide-slate-100 bg-white">
+            <div className="divide-y divide-[color:var(--border)]">
               {filtered.map((clip) => (
                 <Link
                   key={clip.id}
                   href={`/${locale}/clips/${clip.id}`}
-                  className="grid grid-cols-12 items-center gap-3 px-4 py-3 text-sm transition-colors hover:bg-slate-50"
+                  className="grid grid-cols-12 items-center gap-3 px-4 py-3 text-sm transition-colors hover:bg-[var(--surface-muted)] motion-reduce:transition-none"
                 >
                   <div className="col-span-5 min-w-0">
-                    <div className="truncate font-medium text-slate-900">{clip.title}</div>
-                    <div className="mt-0.5 truncate text-xs text-slate-500">{clip.id}</div>
+                    <div className="truncate font-medium text-[var(--text)]">{clip.title}</div>
+                    <div className="mt-0.5 truncate text-xs text-[var(--text-muted)]">{clip.id}</div>
                   </div>
                   <div className="col-span-3 min-w-0">
-                    <div className="truncate text-sm text-slate-700">{clip.projectName}</div>
+                    <div className="truncate text-sm text-[var(--text-muted)]">{clip.projectName}</div>
                   </div>
                   <div className="col-span-2">
                     <StatusBadge
@@ -194,10 +194,10 @@ export function ClipsIndex() {
                       }}
                     />
                   </div>
-                  <div className="col-span-1 text-right text-xs text-slate-600">
+                  <div className="col-span-1 text-right text-xs text-[var(--text-muted)]">
                     {formatDuration(clip.durationSec)}
                   </div>
-                  <div className="col-span-1 text-right text-xs text-slate-500">
+                  <div className="col-span-1 text-right text-xs text-[var(--text-muted)]">
                     {df.format(new Date(clip.createdAt))}
                   </div>
                 </Link>
@@ -210,14 +210,14 @@ export function ClipsIndex() {
               <Link
                 key={clip.id}
                 href={`/${locale}/clips/${clip.id}`}
-                className="group rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition hover:-translate-y-px hover:border-slate-300 hover:shadow motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+                className="group rounded-xl border border-[color:var(--border)] bg-[var(--surface)] p-4 shadow-sm transition hover:-translate-y-px hover:border-[color:var(--border)] hover:shadow motion-reduce:transition-none motion-reduce:hover:translate-y-0"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <div className="truncate text-sm font-semibold text-slate-900 group-hover:text-indigo-700">
+                    <div className="truncate text-sm font-semibold text-[var(--text)] group-hover:text-[var(--accent)]">
                       {clip.title}
                     </div>
-                    <div className="mt-1 truncate text-xs text-slate-500">{clip.projectName}</div>
+                    <div className="mt-1 truncate text-xs text-[var(--text-muted)]">{clip.projectName}</div>
                   </div>
                   <StatusBadge
                     status={clip.status}
@@ -229,20 +229,20 @@ export function ClipsIndex() {
                   />
                 </div>
 
-                <div className="mt-4 grid grid-cols-2 gap-3 rounded-lg border border-slate-200 bg-slate-50 p-3 text-xs">
+                <div className="mt-4 grid grid-cols-2 gap-3 rounded-lg border border-[color:var(--border)] bg-[var(--surface-muted)] p-3 text-xs">
                   <div>
-                    <div className="text-slate-500">{t('cards.duration')}</div>
-                    <div className="mt-1 font-medium text-slate-800">
+                    <div className="text-[var(--text-muted)]">{t('cards.duration')}</div>
+                    <div className="mt-1 font-medium text-[var(--text)]">
                       {formatDuration(clip.durationSec)}
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="text-slate-500">{t('cards.created')}</div>
-                    <div className="mt-1 font-medium text-slate-800">{df.format(new Date(clip.createdAt))}</div>
+                    <div className="text-[var(--text-muted)]">{t('cards.created')}</div>
+                    <div className="mt-1 font-medium text-[var(--text)]">{df.format(new Date(clip.createdAt))}</div>
                   </div>
                 </div>
 
-                <div className="mt-3 truncate text-xs text-slate-500">{clip.id}</div>
+                <div className="mt-3 truncate text-xs text-[var(--text-muted)]">{clip.id}</div>
               </Link>
             ))}
           </div>
@@ -304,9 +304,9 @@ function EmptyState({
   actionHref: LinkProps['href'];
 }) {
   return (
-    <div className="rounded-xl border border-slate-200 bg-slate-50 p-6">
-      <div className="text-sm font-semibold text-slate-900">{title}</div>
-      <div className="mt-1 text-sm text-slate-600">{subtitle}</div>
+    <div className="rounded-xl border border-[color:var(--border)] bg-[var(--surface-muted)] p-6">
+      <div className="text-sm font-semibold text-[var(--text)]">{title}</div>
+      <div className="mt-1 text-sm text-[var(--text-muted)]">{subtitle}</div>
       <div className="mt-4">
         <Link
           href={actionHref as any}

@@ -8,6 +8,8 @@ import {
   CardHeader,
   CardTitle,
 } from "../../ui/primitives/Card";
+import { EmptyState } from "../../ui/shell/EmptyState";
+import { PageHeader } from "../../ui/shell/PageHeader";
 
 export default async function DashboardPage({
   params,
@@ -21,9 +23,8 @@ export default async function DashboardPage({
   const t = await getTranslations("dashboard");
 
   return (
-    <div className="space-y-2">
-      <h1 className="text-2xl font-semibold tracking-tight">{t("title")}</h1>
-      <p className="text-sm text-slate-600">{t("subtitle")}</p>
+    <div className="space-y-6">
+      <PageHeader title={t("title")} description={t("subtitle")} />
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <KpiCard label={t("kpi.queued")} value="0" />
@@ -32,13 +33,11 @@ export default async function DashboardPage({
         <KpiCard label={t("kpi.failed")} value="0" />
       </div>
 
-      <Card className="mt-6">
+      <Card>
         <CardHeader className="flex flex-row items-start justify-between gap-4">
           <div>
             <CardTitle>{t("latest.title")}</CardTitle>
-            <div className="mt-1 text-sm text-slate-500">
-              {t("latest.subtitle")}
-            </div>
+            <div className="mt-1 text-sm text-[var(--text-muted)]">{t("latest.subtitle")}</div>
           </div>
 
           <Link
@@ -50,7 +49,11 @@ export default async function DashboardPage({
         </CardHeader>
 
         <CardContent>
-          <div className="text-sm text-slate-600">{t("latest.empty")}</div>
+          <EmptyState
+            title={t("latest.empty")}
+            actionLabel={t("latest.new")}
+            actionHref={`/${locale}/projects/new`}
+          />
         </CardContent>
       </Card>
     </div>

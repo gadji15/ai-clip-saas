@@ -11,15 +11,15 @@ import {
   CardTitle,
 } from '@/ui/primitives/Card';
 import { Input } from '@/ui/primitives/Input';
+import { PageHeader } from '@/ui/shell/PageHeader';
 import { ThemeSegmentedControl } from '@/ui/theme/ThemeSegmentedControl';
 
 export default async function SettingsPage() {
   const t = await getTranslations('settings');
 
   return (
-    <div className="space-y-2">
-      <h1 className="text-2xl font-semibold tracking-tight">{t('title')}</h1>
-      <p className="text-sm text-[var(--text-muted)]">{t('subtitle')}</p>
+    <div className="space-y-6">
+      <PageHeader title={t('title')} description={t('subtitle')} />
 
       <div className="mt-6 grid gap-4 lg:grid-cols-2">
         <Card>
