@@ -10,6 +10,6 @@ body {
 }
 
 body {
-  background: theme(colors.slate.50);
-  color: theme(colors.slate.900);
+  background: #f8fafc;
+  color: #0f172a;
 }
