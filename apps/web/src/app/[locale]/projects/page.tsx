@@ -39,9 +39,9 @@ const mockProjects: ProjectRow[] = [
 export default async function ProjectsPage({
   params,
 }: {
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }) {
-  const { locale } = params;
+  const { locale } = await params;
   const t = await getTranslations('projects');
   const tProject = await getTranslations('project');
 

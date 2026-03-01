@@ -9,9 +9,9 @@ import { CreateProjectForm } from './ui/CreateProjectForm';
 export default async function NewProjectPage({
   params,
 }: {
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }) {
-  const { locale } = params;
+  const { locale } = await params;
   const t = await getTranslations('projectNew');
 
   return (

@@ -22,9 +22,9 @@ type Stage = (typeof stages)[number];
 export default async function ProjectDetailsPage({
   params,
 }: {
-  params: { locale: string; id: string };
+  params: Promise<{ locale: string; id: string }>;
 }) {
-  const { locale, id } = params;
+  const { locale, id } = await params;
   const t = await getTranslations('project');
 
   // Mock project based on id

@@ -7,9 +7,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '../../ui/primitives/Ca
 export default async function DashboardPage({
   params,
 }: {
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }) {
-  const { locale } = params;
+  const { locale } = await params;
   const t = await getTranslations('dashboard');
 
   return (

@@ -17,9 +17,9 @@ import { Skeleton } from '../../../ui/primitives/Skeleton';
 export default async function ClipDetailsPage({
   params,
 }: {
-  params: { locale: string; id: string };
+  params: Promise<{ locale: string; id: string }>;
 }) {
-  const { locale, id } = params;
+  const { locale, id } = await params;
   const t = await getTranslations('clip');
 
   const processing = 64;
