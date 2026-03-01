@@ -26,7 +26,7 @@ export default async function DashboardPage({
     <div className="space-y-6">
       <PageHeader title={t("title")} description={t("subtitle")} />
 
-      <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <KpiCard label={t("kpi.queued")} value="0" />
         <KpiCard label={t("kpi.processing")} value="0" />
         <KpiCard label={t("kpi.completed")} value="0" />

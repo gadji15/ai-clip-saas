@@ -21,7 +21,7 @@ export default async function SettingsPage() {
     <div className="space-y-6">
       <PageHeader title={t('title')} description={t('subtitle')} />
 
-      <div className="mt-6 grid gap-4 lg:grid-cols-2">
+      <div className="grid gap-4 lg:grid-cols-2">
         <Card>
           <CardHeader>
             <div className="flex items-start justify-between gap-4">
@@ -73,7 +73,7 @@ export default async function SettingsPage() {
         </Card>
       </div>
 
-      <div className="mt-6 grid gap-4 lg:grid-cols-3">
+      <div className="grid gap-4 lg:grid-cols-3">
         <Card className="lg:col-span-1">
           <CardHeader>
             <CardTitle>{t('theme.title')}</CardTitle>

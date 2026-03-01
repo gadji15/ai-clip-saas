@@ -1,6 +1,6 @@
 'use client';
 
-import Link, { type LinkProps } from 'next/link';
+import Link from 'next/link';
 import { type ReactNode, useMemo, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 
@@ -10,6 +10,7 @@ import { Button } from '@/ui/primitives/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/ui/primitives/Card';
 import { Input } from '@/ui/primitives/Input';
 import { buttonStyles } from '@/ui/primitives/buttonStyles';
+import { EmptyState } from '@/ui/shell/EmptyState';
 
 type ClipStatus = 'processing' | 'ready' | 'failed';
 
@@ -85,7 +86,7 @@ export function ClipsIndex() {
   const hasAny = mockClips.length > 0;
 
   return (
-    <Card className="mt-6">
+    <Card>
       <CardHeader className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <div className="min-w-0">
           <CardTitle>{t('listTitle')}</CardTitle>
@@ -292,29 +293,4 @@ function formatDuration(totalSeconds: number) {
   return `${minutes}m ${seconds.toString().padStart(2, '0')}s`;
 }
 
-function EmptyState({
-  title,
-  subtitle,
-  actionLabel,
-  actionHref,
-}: {
-  title: string;
-  subtitle: string;
-  actionLabel: string;
-  actionHref: LinkProps['href'];
-}) {
-  return (
-    <div className="rounded-xl border border-[color:var(--border)] bg-[var(--surface-muted)] p-6">
-      <div className="text-sm font-semibold text-[var(--text)]">{title}</div>
-      <div className="mt-1 text-sm text-[var(--text-muted)]">{subtitle}</div>
-      <div className="mt-4">
-        <Link
-          href={actionHref as any}
-          className={buttonStyles({ variant: 'primary', size: 'sm' })}
-        >
-          {actionLabel}
-        </Link>
-      </div>
-    </div>
-  );
-}
+

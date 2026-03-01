@@ -45,7 +45,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       >
         <div
           className={
-            'absolute inset-0 bg-slate-900/30 backdrop-blur-sm transition-opacity motion-reduce:transition-none ' +
+            'absolute inset-0 bg-black/30 backdrop-blur-sm transition-opacity motion-reduce:transition-none ' +
             (mobileNavOpen ? 'opacity-100' : 'opacity-0')
           }
           onClick={() => setMobileNavOpen(false)}

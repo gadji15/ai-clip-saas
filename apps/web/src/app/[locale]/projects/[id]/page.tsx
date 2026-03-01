@@ -170,7 +170,7 @@ export default async function ProjectDetailsPage({
         </Card>
       </div>
 
-      <div className="mt-6 grid gap-4 lg:grid-cols-2">
+      <div className="grid gap-4 lg:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle>{t("events.title")}</CardTitle>

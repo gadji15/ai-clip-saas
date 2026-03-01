@@ -34,7 +34,7 @@ export default async function RootLayout({
   const messages = getMessages(locale);
 
   return (
-    <html lang={locale} className={sans.variable}>
+    <html lang={locale} className={sans.variable} suppressHydrationWarning>
       <head>
         <ThemeScript />
       </head>

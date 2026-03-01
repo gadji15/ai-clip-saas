@@ -47,7 +47,7 @@ export default async function ClipDetailsPage({
         }
       />
 
-      <div className="mt-6 grid gap-4 lg:grid-cols-3">
+      <div className="grid gap-4 lg:grid-cols-3">
         <Card className="lg:col-span-2">
           <CardHeader>
             <CardTitle>{t("preview.title")}</CardTitle>

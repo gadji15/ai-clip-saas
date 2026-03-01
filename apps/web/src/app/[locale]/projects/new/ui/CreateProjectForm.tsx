@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 
 import { Button } from '@/ui/primitives/Button';
 import { Input } from '@/ui/primitives/Input';
+import { Select } from '@/ui/primitives/Select';
 
 function isValidYoutubeUrl(value: string) {
   try {
@@ -78,14 +79,10 @@ export function CreateProjectForm({ redirectLocale }: { redirectLocale: string }
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           <div className="grid gap-2">
             <label className="text-xs font-medium text-[var(--text-muted)]">{t('form.languageLabel')}</label>
-            <select
-              value={language}
-              onChange={(e) => setLanguage(e.target.value as 'fr' | 'en')}
-              className="h-10 w-full rounded-lg border border-[color:var(--border)] bg-[var(--surface)] px-3 text-sm text-[var(--text)] shadow-sm transition-colors placeholder:text-[var(--text-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 ring-offset-[color:var(--surface)] motion-reduce:transition-none"
-            >
+            <Select value={language} onChange={(e) => setLanguage(e.target.value as 'fr' | 'en')}>
               <option value="fr">FR</option>
               <option value="en">EN</option>
-            </select>
+            </Select>
           </div>
 
           <div className="grid gap-2">

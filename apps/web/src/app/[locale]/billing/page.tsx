@@ -25,7 +25,7 @@ export default async function BillingPage() {
     <div className="space-y-6">
       <PageHeader title={t('title')} description={t('subtitle')} />
 
-      <div className="mt-6 grid gap-4 lg:grid-cols-3">
+      <div className="grid gap-4 lg:grid-cols-3">
         <Card className="lg:col-span-2">
           <CardHeader>
             <div className="flex items-start justify-between gap-4">
@@ -87,7 +87,7 @@ export default async function BillingPage() {
         </Card>
       </div>
 
-      <Card className="mt-6">
+      <Card>
         <CardHeader>
           <CardTitle>{t('invoices.title')}</CardTitle>
           <CardDescription>{t('invoices.subtitle')}</CardDescription>
