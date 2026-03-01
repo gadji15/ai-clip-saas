@@ -12,7 +12,7 @@ import {
   CardTitle,
 } from "@/ui/primitives/Card";
 import { Progress } from "@/ui/primitives/Progress";
-import { Skeleton } from "@/ui/primitives/Skeleton";
+import { Skeleton } from "@/ui/primitives/skeleton";
 
 export default async function ClipDetailsPage({
   params,
