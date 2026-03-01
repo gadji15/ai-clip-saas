@@ -5,7 +5,6 @@ import { useLocale, useTranslations } from 'next-intl';
 import { usePathname } from 'next/navigation';
 
 import type { AppLocale } from '@/i18n/locales';
-import { Button } from '@/ui/primitives/Button';
 import { LanguageSwitcher } from '@/ui/shell/LanguageSwitcher';
 import { getActiveNavItem } from '@/ui/shell/navigation';
 
@@ -39,9 +38,12 @@ export function Topbar({
 
         <div className="flex items-center gap-3">
           <LanguageSwitcher />
-          <Button type="button" size="sm">
+          <button
+            type="button"
+            className="inline-flex items-center rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm transition-colors hover:bg-slate-50"
+          >
             {t('topbar.account')}
-          </Button>
+          </button>
         </div>
       </div>
     </header>
