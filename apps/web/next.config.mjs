@@ -1,12 +1,12 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import type { NextConfig } from 'next';
 import createNextIntlPlugin from 'next-intl/plugin';
 
-const dirname = path.dirname(fileURLToPath(import.meta.url));
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const nextConfig: NextConfig = {
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   reactStrictMode: true,
   experimental: {
     typedRoutes: true,
@@ -14,7 +14,7 @@ const nextConfig: NextConfig = {
   webpack(config) {
     config.resolve.alias = {
       ...(config.resolve.alias || {}),
-      '@': path.join(dirname, 'src'),
+      '@': path.join(__dirname, 'src'),
     };
 
     return config;
