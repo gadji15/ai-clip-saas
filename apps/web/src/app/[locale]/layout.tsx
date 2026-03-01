@@ -1,8 +1,4 @@
 import type { Metadata } from 'next';
-import { NextIntlClientProvider } from 'next-intl';
-
-import { getMessages } from '@/i18n/getMessages';
-import { isLocale, type AppLocale } from '@/i18n/locales';
 
 import '../globals.css';
 import { AppShell } from '@/ui/shell/AppShell';
@@ -19,17 +15,12 @@ export default async function RootLayout({
   children: React.ReactNode;
   params: Promise<{ locale: string }>;
 }) {
-  const { locale: rawLocale } = await params;
-  const locale: AppLocale = isLocale(rawLocale) ? rawLocale : 'fr';
-
-  const messages = getMessages(locale);
+  const { locale } = await params;
 
   return (
     <html lang={locale}>
       <body>
-        <NextIntlClientProvider locale={locale} messages={messages}>
-          <AppShell>{children}</AppShell>
-        </NextIntlClientProvider>
+        <AppShell>{children}</AppShell>
       </body>
     </html>
   );

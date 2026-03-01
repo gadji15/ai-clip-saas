@@ -1,10 +1,12 @@
-import { getTranslations } from 'next-intl/server';
+'use client';
+
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 
 import { Logo } from '@/ui/shell/Logo';
 
-export async function AppSidebar() {
-  const t = await getTranslations('app');
+export function AppSidebar() {
+  const t = useTranslations('app');
 
   return (
     <aside className="hidden w-64 shrink-0 border-r border-slate-200 bg-white lg:block">
