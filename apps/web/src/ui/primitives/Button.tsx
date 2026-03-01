@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 
-import { buttonStyles, type ButtonSize, type ButtonVariant } from '@/ui/primitives/buttonStyles';
+import { buttonStyles, type ButtonSize, type ButtonVariant } from './buttonStyles';
 
 export type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: ButtonVariant;

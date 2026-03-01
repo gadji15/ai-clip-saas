@@ -4,9 +4,9 @@ import { Menu } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { usePathname } from 'next/navigation';
 
-import type { AppLocale } from '@/i18n/locales';
-import { LanguageSwitcher } from '@/ui/shell/LanguageSwitcher';
-import { getActiveNavItem } from '@/ui/shell/navigation';
+import type { AppLocale } from '../../i18n/locales';
+import { LanguageSwitcher } from './LanguageSwitcher';
+import { getActiveNavItem } from './navigation';
 
 export function Topbar({
   onOpenMobileNav,

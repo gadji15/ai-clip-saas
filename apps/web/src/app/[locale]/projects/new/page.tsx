@@ -1,8 +1,8 @@
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 
-import { buttonStyles } from '@/ui/primitives/buttonStyles';
-import { Card, CardContent, CardHeader, CardTitle } from '@/ui/primitives/Card';
+import { buttonStyles } from '../../../ui/primitives/buttonStyles';
+import { Card, CardContent, CardHeader, CardTitle } from '../../../ui/primitives/Card';
 
 import { CreateProjectForm } from './ui/CreateProjectForm';
 

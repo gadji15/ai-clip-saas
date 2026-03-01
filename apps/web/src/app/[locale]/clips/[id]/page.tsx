@@ -1,18 +1,18 @@
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 
-import { Badge } from '@/ui/primitives/Badge';
-import { Button } from '@/ui/primitives/Button';
-import { buttonStyles } from '@/ui/primitives/buttonStyles';
+import { Badge } from '../../../ui/primitives/Badge';
+import { Button } from '../../../ui/primitives/Button';
+import { buttonStyles } from '../../../ui/primitives/buttonStyles';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/ui/primitives/Card';
-import { Progress } from '@/ui/primitives/Progress';
-import { Skeleton } from '@/ui/primitives/Skeleton';
+} from '../../../ui/primitives/Card';
+import { Progress } from '../../../ui/primitives/Progress';
+import { Skeleton } from '../../../ui/primitives/Skeleton';
 
 export default async function ClipDetailsPage({
   params,

@@ -3,7 +3,7 @@
 import { useLocale } from 'next-intl';
 import { usePathname, useRouter } from 'next/navigation';
 
-import { locales, type AppLocale } from '@/i18n/locales';
+import { locales, type AppLocale } from '../../i18n/locales';
 
 function setLocaleCookie(locale: AppLocale) {
   document.cookie = `youtok_locale=${locale}; Path=/; Max-Age=${60 * 60 * 24 * 365}; SameSite=Lax`;

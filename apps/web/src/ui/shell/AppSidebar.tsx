@@ -1,6 +1,6 @@
 'use client';
 
-import { SidebarContent } from '@/ui/shell/SidebarContent';
+import { SidebarContent } from './SidebarContent';
 
 export function AppSidebar() {
   return (

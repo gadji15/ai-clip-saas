@@ -4,8 +4,8 @@ import { type FormEvent, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 
-import { Button } from '@/ui/primitives/Button';
-import { Input } from '@/ui/primitives/Input';
+import { Button } from '../../../../ui/primitives/Button';
+import { Input } from '../../../../ui/primitives/Input';
 
 function isValidYoutubeUrl(value: string) {
   try {

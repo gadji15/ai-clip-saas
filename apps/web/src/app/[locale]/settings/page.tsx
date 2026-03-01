@@ -1,7 +1,7 @@
 import { getTranslations } from 'next-intl/server';
 
-import { Badge } from '@/ui/primitives/Badge';
-import { Button } from '@/ui/primitives/Button';
+import { Badge } from '../../../ui/primitives/Badge';
+import { Button } from '../../../ui/primitives/Button';
 import {
   Card,
   CardContent,
@@ -9,7 +9,7 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/ui/primitives/Card';
+} from '../../../ui/primitives/Card';
 
 export default async function SettingsPage() {
   const t = await getTranslations('settings');

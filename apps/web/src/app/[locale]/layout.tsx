@@ -2,9 +2,9 @@ import type { Metadata } from 'next';
 import { NextIntlClientProvider } from 'next-intl';
 
 import '../globals.css';
-import { AppShell } from '@/ui/shell/AppShell';
-import { getMessages } from '@/i18n/getMessages';
-import { isLocale, type AppLocale } from '@/i18n/locales';
+import { AppShell } from '../../ui/shell/AppShell';
+import { getMessages } from '../../i18n/getMessages';
+import { isLocale, type AppLocale } from '../../i18n/locales';
 
 export const metadata: Metadata = {
   title: 'YouTok',

@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 
-import { cn } from '@/lib/cn';
+import { cn } from '../../lib/cn';
 
 export type InputProps = React.InputHTMLAttributes<HTMLInputElement>;
 

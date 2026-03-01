@@ -4,10 +4,10 @@ import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
 import { usePathname } from 'next/navigation';
 
-import type { AppLocale } from '@/i18n/locales';
-import { cn } from '@/lib/cn';
-import { Logo } from '@/ui/shell/Logo';
-import { appNavItems, isNavItemActive, localizeHref } from '@/ui/shell/navigation';
+import type { AppLocale } from '../../i18n/locales';
+import { cn } from '../../lib/cn';
+import { Logo } from './Logo';
+import { appNavItems, isNavItemActive, localizeHref } from './navigation';
 
 export function SidebarContent({
   onNavigate,

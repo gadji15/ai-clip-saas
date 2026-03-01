@@ -1,10 +1,10 @@
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 
-import { Badge } from '@/ui/primitives/Badge';
-import { buttonStyles } from '@/ui/primitives/buttonStyles';
-import { Card, CardContent, CardHeader, CardTitle } from '@/ui/primitives/Card';
-import { Input } from '@/ui/primitives/Input';
+import { Badge } from '../../ui/primitives/Badge';
+import { buttonStyles } from '../../ui/primitives/buttonStyles';
+import { Card, CardContent, CardHeader, CardTitle } from '../../ui/primitives/Card';
+import { Input } from '../../ui/primitives/Input';
 
 type ProjectStatus = 'queued' | 'processing' | 'completed' | 'failed';
 

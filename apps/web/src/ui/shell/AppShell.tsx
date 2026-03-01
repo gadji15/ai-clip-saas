@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from 'react';
 
-import { AppSidebar } from '@/ui/shell/AppSidebar';
-import { SidebarContent } from '@/ui/shell/SidebarContent';
-import { Topbar } from '@/ui/shell/Topbar';
+import { AppSidebar } from './AppSidebar';
+import { SidebarContent } from './SidebarContent';
+import { Topbar } from './Topbar';
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);

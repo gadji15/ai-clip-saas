@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { cn } from '@/lib/cn';
+import { cn } from '../../lib/cn';
 
 type BadgeVariant = 'default' | 'secondary' | 'success' | 'warning' | 'danger';
 
