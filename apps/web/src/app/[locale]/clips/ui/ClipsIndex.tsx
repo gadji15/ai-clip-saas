@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import Link, { type LinkProps } from 'next/link';
 import { type ReactNode, useMemo, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 
@@ -301,14 +301,17 @@ function EmptyState({
   title: string;
   subtitle: string;
   actionLabel: string;
-  actionHref: string;
+  actionHref: LinkProps['href'];
 }) {
   return (
     <div className="rounded-xl border border-slate-200 bg-slate-50 p-6">
       <div className="text-sm font-semibold text-slate-900">{title}</div>
       <div className="mt-1 text-sm text-slate-600">{subtitle}</div>
       <div className="mt-4">
-        <Link href={actionHref} className={buttonStyles({ variant: 'primary', size: 'sm' })}>
+        <Link
+          href={actionHref as any}
+          className={buttonStyles({ variant: 'primary', size: 'sm' })}
+        >
           {actionLabel}
         </Link>
       </div>
