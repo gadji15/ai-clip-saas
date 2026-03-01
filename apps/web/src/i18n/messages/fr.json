@@ -160,6 +160,15 @@
       "notificationsHint": "Recevez des alertes quand un projet est terminé.",
       "save": "Sauvegarder"
     },
+    "theme": {
+      "title": "Thème",
+      "subtitle": "Choisissez l’apparence de l’application sur cet appareil.",
+      "options": {
+        "system": "Système",
+        "light": "Clair",
+        "dark": "Sombre"
+      }
+    },
     "danger": {
       "title": "Zone dangereuse",
       "subtitle": "Actions irréversibles.",

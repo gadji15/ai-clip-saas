@@ -7,6 +7,8 @@ import { getMessages } from '../../i18n/getMessages';
 import { isLocale, type AppLocale } from '../../i18n/locales';
 import { AppShell } from '../../ui/shell/AppShell';
 import { PageTransition } from '../../ui/shell/PageTransition';
+import { ThemeProvider } from '../../ui/theme/ThemeProvider';
+import { ThemeScript } from '../../ui/theme/ThemeScript';
 
 const sans = Plus_Jakarta_Sans({
   subsets: ['latin'],
@@ -33,12 +35,17 @@ export default async function RootLayout({
 
   return (
     <html lang={locale} className={sans.variable}>
+      <head>
+        <ThemeScript />
+      </head>
       <body>
-        <NextIntlClientProvider locale={locale} messages={messages}>
-          <AppShell>
-            <PageTransition>{children}</PageTransition>
-          </AppShell>
-        </NextIntlClientProvider>
+        <ThemeProvider>
+          <NextIntlClientProvider locale={locale} messages={messages}>
+            <AppShell>
+              <PageTransition>{children}</PageTransition>
+            </AppShell>
+          </NextIntlClientProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

@@ -18,9 +18,9 @@ export function Badge({
             'border-[color:var(--border)] bg-[var(--surface-muted)] text-[var(--text-muted)]',
           secondary:
             'border-[color:var(--border)] bg-[var(--surface)] text-[var(--text-muted)]',
-          success: 'border-emerald-200 bg-emerald-50 text-emerald-700',
-          warning: 'border-amber-200 bg-amber-50 text-amber-800',
-          danger: 'border-rose-200 bg-rose-50 text-rose-700',
+          success: 'border-[color:var(--border)] bg-[var(--success-soft)] text-[var(--text)]',
+          warning: 'border-[color:var(--border)] bg-[var(--warning-soft)] text-[var(--text)]',
+          danger: 'border-[color:var(--border)] bg-[var(--danger-soft)] text-[var(--text)]',
         }[variant],
         className
       )}

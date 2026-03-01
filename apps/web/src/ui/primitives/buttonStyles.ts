@@ -19,7 +19,7 @@ export function buttonStyles({
     'active:translate-y-px',
     'motion-reduce:transition-none motion-reduce:active:translate-y-0',
     {
-      primary: 'bg-indigo-600 text-white hover:bg-indigo-500',
+      primary: 'bg-[var(--accent)] text-[var(--accent-foreground)] hover:opacity-90',
       secondary:
         'border border-[color:var(--border)] bg-[var(--surface)] text-[var(--text-muted)] hover:bg-[var(--surface-muted)] hover:text-[var(--text)]',
       ghost: 'text-[var(--text-muted)] hover:bg-[var(--surface-muted)] hover:text-[var(--text)]',

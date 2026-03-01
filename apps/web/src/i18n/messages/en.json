@@ -160,6 +160,15 @@
       "notificationsHint": "Get notified when a project completes.",
       "save": "Save"
     },
+    "theme": {
+      "title": "Theme",
+      "subtitle": "Choose how the app looks on this device.",
+      "options": {
+        "system": "System",
+        "light": "Light",
+        "dark": "Dark"
+      }
+    },
     "danger": {
       "title": "Danger zone",
       "subtitle": "Irreversible actions.",
