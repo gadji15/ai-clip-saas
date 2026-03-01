@@ -4,6 +4,7 @@
     "nav": {
       "dashboard": "Tableau de bord",
       "projects": "Projets",
+      "clips": "Clips",
       "billing": "Facturation",
       "settings": "Paramètres"
     },
@@ -178,12 +179,53 @@
       "cta": "Action admin"
     }
   },
+  "clips": {
+    "title": "Clips",
+    "subtitle": "Parcourez, recherchez et téléchargez les clips générés depuis vos projets.",
+    "listTitle": "Tous les clips",
+    "searchPlaceholder": "Rechercher des clips…",
+    "count": "{shown} sur {total}",
+    "countEmpty": "Aucun clip",
+    "filters": {
+      "all": "Tous",
+      "processing": "En cours",
+      "ready": "Prêt",
+      "failed": "En erreur"
+    },
+    "view": {
+      "table": "Tableau",
+      "cards": "Cartes"
+    },
+    "table": {
+      "clip": "Clip",
+      "project": "Projet",
+      "status": "Statut",
+      "duration": "Durée",
+      "created": "Créé"
+    },
+    "cards": {
+      "duration": "Durée",
+      "created": "Créé"
+    },
+    "empty": {
+      "title": "Aucun clip",
+      "subtitle": "Créez un projet pour générer des clips, puis revenez ici pour les consulter.",
+      "action": "Voir les projets"
+    },
+    "noResults": {
+      "title": "Aucun clip ne correspond à votre recherche",
+      "subtitle": "Essayez un autre mot-clé ou réinitialisez les filtres.",
+      "reset": "Réinitialiser"
+    }
+  },
   "clip": {
     "back": "Retour",
     "title": "Clip {id}",
     "subtitle": "Prévisualisation, métadonnées et actions.",
     "status": {
-      "processing": "En cours"
+      "processing": "En cours",
+      "ready": "Prêt",
+      "failed": "En erreur"
     },
     "preview": {
       "title": "Aperçu",

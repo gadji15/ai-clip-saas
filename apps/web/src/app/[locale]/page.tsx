@@ -59,9 +59,9 @@ export default async function DashboardPage({
 
 function KpiCard({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-      <div className="text-xs font-medium text-slate-500">{label}</div>
-      <div className="mt-2 text-2xl font-semibold">{value}</div>
+    <div className="rounded-xl border border-[color:var(--border)] bg-[var(--surface)] p-4 shadow-sm transition-all hover:-translate-y-px hover:shadow motion-reduce:transition-none motion-reduce:hover:translate-y-0">
+      <div className="text-xs font-medium text-[var(--text-muted)]">{label}</div>
+      <div className="mt-2 text-2xl font-semibold text-[var(--text)]">{value}</div>
     </div>
   );
 }

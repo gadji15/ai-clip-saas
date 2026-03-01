@@ -13,14 +13,16 @@ export function buttonStyles({
   className?: string;
 }) {
   return cn(
-    'inline-flex items-center justify-center gap-2 rounded-lg font-medium shadow-sm ring-offset-white transition-all',
+    'inline-flex items-center justify-center gap-2 rounded-lg font-medium shadow-sm transition-all ring-offset-[color:var(--surface)]',
     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2',
     'disabled:pointer-events-none disabled:opacity-50',
     'active:translate-y-px',
+    'motion-reduce:transition-none motion-reduce:active:translate-y-0',
     {
       primary: 'bg-indigo-600 text-white hover:bg-indigo-500',
-      secondary: 'border border-slate-200 bg-white text-slate-700 hover:bg-slate-50',
-      ghost: 'text-slate-700 hover:bg-slate-100',
+      secondary:
+        'border border-[color:var(--border)] bg-[var(--surface)] text-[var(--text-muted)] hover:bg-[var(--surface-muted)] hover:text-[var(--text)]',
+      ghost: 'text-[var(--text-muted)] hover:bg-[var(--surface-muted)] hover:text-[var(--text)]',
       danger: 'bg-rose-600 text-white hover:bg-rose-500',
     }[variant],
     {

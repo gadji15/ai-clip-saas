@@ -23,7 +23,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }, [mobileNavOpen]);
 
   return (
-    <div className="min-h-dvh bg-slate-50">
+    <div className="min-h-dvh bg-[var(--page-bg)]">
       <div className="mx-auto flex min-h-dvh max-w-screen-2xl">
         <AppSidebar />
 
@@ -45,7 +45,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       >
         <div
           className={
-            'absolute inset-0 bg-slate-900/30 backdrop-blur-sm transition-opacity ' +
+            'absolute inset-0 bg-slate-900/30 backdrop-blur-sm transition-opacity motion-reduce:transition-none ' +
             (mobileNavOpen ? 'opacity-100' : 'opacity-0')
           }
           onClick={() => setMobileNavOpen(false)}
@@ -53,7 +53,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
         <div
           className={
-            'absolute left-0 top-0 h-full w-[min(20rem,85vw)] border-r border-slate-200 bg-white shadow-xl transition-transform ' +
+            'absolute left-0 top-0 h-full w-[min(20rem,85vw)] border-r border-[color:var(--border)] bg-[var(--surface)] shadow-xl transition-transform motion-reduce:transition-none ' +
             (mobileNavOpen ? 'translate-x-0' : '-translate-x-full')
           }
         >
