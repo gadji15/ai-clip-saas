@@ -5,10 +5,10 @@ import { NextIntlClientProvider } from 'next-intl';
 import '../globals.css';
 import { getMessages } from '../../i18n/getMessages';
 import { isLocale, type AppLocale } from '../../i18n/locales';
-import { AppShell } from '../../ui/shell/AppShell';
-import { PageTransition } from '../../ui/shell/PageTransition';
-import { ThemeProvider } from '../../ui/theme/ThemeProvider';
-import { ThemeScript } from '../../ui/theme/ThemeScript';
+import { AppShell } from '@/ui/shell/AppShell';
+import { PageTransition } from '@/ui/shell/PageTransition';
+import { ThemeProvider } from '@/ui/theme/ThemeProvider';
+import { ThemeScript } from '@/ui/theme/ThemeScript';
 
 const sans = Plus_Jakarta_Sans({
   subsets: ['latin'],
