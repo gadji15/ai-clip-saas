@@ -42,7 +42,7 @@ export function CreateProjectForm({ redirectLocale }: { redirectLocale: string }
   return (
     <form onSubmit={onSubmit} className="grid gap-5">
       <div className="grid gap-2">
-        <label className="text-xs font-medium text-slate-700">{t('form.nameLabel')}</label>
+        <label className="text-xs font-medium text-[var(--text-muted)]">{t('form.nameLabel')}</label>
         <Input
           value={name}
           onChange={(e) => setName(e.target.value)}
@@ -51,7 +51,7 @@ export function CreateProjectForm({ redirectLocale }: { redirectLocale: string }
       </div>
 
       <div className="grid gap-2">
-        <label className="text-xs font-medium text-slate-700">{t('form.urlLabel')}</label>
+        <label className="text-xs font-medium text-[var(--text-muted)]">{t('form.urlLabel')}</label>
         <Input
           value={url}
           onChange={(e) => setUrl(e.target.value)}
@@ -60,24 +60,28 @@ export function CreateProjectForm({ redirectLocale }: { redirectLocale: string }
         <div
           className={
             'text-xs ' +
-            (url.length === 0 ? 'text-slate-500' : urlOk ? 'text-emerald-700' : 'text-rose-600')
+            (url.length === 0
+              ? 'text-[var(--text-muted)]'
+              : urlOk
+                ? 'text-[var(--success)]'
+                : 'text-[var(--danger)]')
           }
         >
           {url.length === 0 ? ' ' : urlOk ? t('form.urlValid') : t('form.urlInvalid')}
         </div>
       </div>
 
-      <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-        <div className="text-sm font-semibold text-slate-900">{t('form.optionsTitle')}</div>
-        <div className="mt-1 text-sm text-slate-600">{t('form.optionsHint')}</div>
+      <div className="rounded-xl border border-[color:var(--border)] bg-[var(--surface-muted)] p-4">
+        <div className="text-sm font-semibold text-[var(--text)]">{t('form.optionsTitle')}</div>
+        <div className="mt-1 text-sm text-[var(--text-muted)]">{t('form.optionsHint')}</div>
 
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           <div className="grid gap-2">
-            <label className="text-xs font-medium text-slate-700">{t('form.languageLabel')}</label>
+            <label className="text-xs font-medium text-[var(--text-muted)]">{t('form.languageLabel')}</label>
             <select
               value={language}
               onChange={(e) => setLanguage(e.target.value as 'fr' | 'en')}
-              className="h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+              className="h-10 w-full rounded-lg border border-[color:var(--border)] bg-[var(--surface)] px-3 text-sm text-[var(--text)] shadow-sm transition-colors placeholder:text-[var(--text-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 ring-offset-[color:var(--surface)] motion-reduce:transition-none"
             >
               <option value="fr">FR</option>
               <option value="en">EN</option>
@@ -85,7 +89,7 @@ export function CreateProjectForm({ redirectLocale }: { redirectLocale: string }
           </div>
 
           <div className="grid gap-2">
-            <label className="text-xs font-medium text-slate-700">{t('form.clipLengthLabel')}</label>
+            <label className="text-xs font-medium text-[var(--text-muted)]">{t('form.clipLengthLabel')}</label>
             <Input
               inputMode="numeric"
               value={clipLength}

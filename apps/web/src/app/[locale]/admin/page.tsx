@@ -30,7 +30,7 @@ export default async function AdminPage() {
         </CardHeader>
         <CardContent>
           <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
-            <div className="text-sm text-slate-600">{t('placeholder.note')}</div>
+            <div className="text-sm text-[var(--text-muted)]">{t('placeholder.note')}</div>
             <Button disabled>{t('placeholder.cta')}</Button>
           </div>
         </CardContent>

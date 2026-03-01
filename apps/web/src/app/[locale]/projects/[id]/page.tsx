@@ -12,6 +12,7 @@ import {
   CardTitle,
 } from "@/ui/primitives/Card";
 import { Progress } from "@/ui/primitives/Progress";
+import { PageHeader } from "@/ui/shell/PageHeader";
 
 type ProjectStatus = "queued" | "processing" | "completed" | "failed";
 
@@ -73,34 +74,34 @@ export default async function ProjectDetailsPage({
   ];
 
   return (
-    <div className="space-y-2">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <Link
-            href={`/${locale}/projects`}
-            className={buttonStyles({ variant: "ghost", size: "sm" })}
-          >
-            {t("back")}
-          </Link>
-          <h1 className="text-2xl font-semibold tracking-tight">{id}</h1>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <StatusBadge
-            status={status}
-            labels={{
-              queued: t("status.queued"),
-              processing: t("status.processing"),
-              completed: t("status.completed"),
-              failed: t("status.failed"),
-            }}
-          />
-          <Button disabled>{t("actions.retry")}</Button>
-          <Button variant="danger" disabled>
-            {t("actions.delete")}
-          </Button>
-        </div>
-      </div>
+    <div className="space-y-6">
+      <PageHeader
+        title={id}
+        description={t('overview.subtitle')}
+        actions={
+          <>
+            <Link
+              href={`/${locale}/projects`}
+              className={buttonStyles({ variant: 'ghost', size: 'sm' })}
+            >
+              {t('back')}
+            </Link>
+            <StatusBadge
+              status={status}
+              labels={{
+                queued: t('status.queued'),
+                processing: t('status.processing'),
+                completed: t('status.completed'),
+                failed: t('status.failed'),
+              }}
+            />
+            <Button disabled>{t('actions.retry')}</Button>
+            <Button variant="danger" disabled>
+              {t('actions.delete')}
+            </Button>
+          </>
+        }
+      />
 
       <div className="mt-6 grid gap-4 lg:grid-cols-3">
         <Card className="lg:col-span-2">
@@ -109,21 +110,21 @@ export default async function ProjectDetailsPage({
             <CardDescription>{t("overview.subtitle")}</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+            <div className="rounded-lg border border-[color:var(--border)] bg-[var(--surface-muted)] p-4">
               <div className="flex items-center justify-between gap-3">
                 <div>
-                  <div className="text-xs font-medium text-slate-500">
+                  <div className="text-xs font-medium text-[var(--text-muted)]">
                     {t("overview.stage")}
                   </div>
-                  <div className="mt-1 text-sm font-semibold text-slate-900">
+                  <div className="mt-1 text-sm font-semibold text-[var(--text)]">
                     {stageLabel}
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-xs font-medium text-slate-500">
+                  <div className="text-xs font-medium text-[var(--text-muted)]">
                     {t("overview.progress")}
                   </div>
-                  <div className="mt-1 text-sm font-semibold text-slate-900">
+                  <div className="mt-1 text-sm font-semibold text-[var(--text)]">
                     {progress}%
                   </div>
                 </div>
@@ -147,19 +148,19 @@ export default async function ProjectDetailsPage({
           <CardContent>
             <div className="grid gap-2">
               <button
-                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-left text-sm text-slate-700 transition-colors hover:bg-slate-50"
+                className="w-full rounded-lg border border-[color:var(--border)] bg-[var(--surface)] px-3 py-2 text-left text-sm text-[var(--text-muted)] transition-colors hover:bg-[var(--surface-muted)] motion-reduce:transition-none"
                 disabled
               >
                 transcript.json
               </button>
               <button
-                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-left text-sm text-slate-700 transition-colors hover:bg-slate-50"
+                className="w-full rounded-lg border border-[color:var(--border)] bg-[var(--surface)] px-3 py-2 text-left text-sm text-[var(--text-muted)] transition-colors hover:bg-[var(--surface-muted)] motion-reduce:transition-none"
                 disabled
               >
                 subtitles.srt
               </button>
               <button
-                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-left text-sm text-slate-700 transition-colors hover:bg-slate-50"
+                className="w-full rounded-lg border border-[color:var(--border)] bg-[var(--surface)] px-3 py-2 text-left text-sm text-[var(--text-muted)] transition-colors hover:bg-[var(--surface-muted)] motion-reduce:transition-none"
                 disabled
               >
                 clips.json
@@ -177,15 +178,15 @@ export default async function ProjectDetailsPage({
           </CardHeader>
           <CardContent>
             {events.length === 0 ? (
-              <div className="text-sm text-slate-600">{t("events.empty")}</div>
+              <div className="text-sm text-[var(--text-muted)]">{t("events.empty")}</div>
             ) : (
               <div className="space-y-3">
                 {events.map((e, idx) => (
                   <div key={idx} className="flex gap-3">
-                    <div className="w-14 shrink-0 text-xs font-medium text-slate-500">
+                    <div className="w-14 shrink-0 text-xs font-medium text-[var(--text-muted)]">
                       {e.ts}
                     </div>
-                    <div className="min-w-0 flex-1 rounded-lg border border-slate-200 bg-white p-3 text-sm text-slate-700">
+                    <div className="min-w-0 flex-1 rounded-lg border border-[color:var(--border)] bg-[var(--surface)] p-3 text-sm text-[var(--text-muted)]">
                       {e.message}
                     </div>
                   </div>
@@ -202,21 +203,21 @@ export default async function ProjectDetailsPage({
           </CardHeader>
           <CardContent>
             {clips.length === 0 ? (
-              <div className="text-sm text-slate-600">{t("clips.empty")}</div>
+              <div className="text-sm text-[var(--text-muted)]">{t("clips.empty")}</div>
             ) : (
               <div className="grid gap-3">
                 {clips.map((c) => (
                   <Link
                     key={c.id}
                     href={`/${locale}/clips/${c.id}`}
-                    className="group rounded-xl border border-slate-200 bg-white p-3 transition-colors hover:bg-slate-50"
+                    className="group rounded-xl border border-[color:var(--border)] bg-[var(--surface)] p-3 transition-colors hover:bg-[var(--surface-muted)] motion-reduce:transition-none"
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
-                        <div className="truncate text-sm font-medium text-slate-900">
+                        <div className="truncate text-sm font-medium text-[var(--text)]">
                           {c.title}
                         </div>
-                        <div className="mt-0.5 text-xs text-slate-500">
+                        <div className="mt-0.5 text-xs text-[var(--text-muted)]">
                           {c.id}
                         </div>
                       </div>
@@ -226,7 +227,7 @@ export default async function ProjectDetailsPage({
                         >
                           {t(`clipStatus.${c.status}`)}
                         </Badge>
-                        <div className="text-xs font-medium text-slate-600">
+                        <div className="text-xs font-medium text-[var(--text-muted)]">
                           {Math.round(c.score * 100)}%
                         </div>
                       </div>
@@ -280,12 +281,12 @@ function Stepper({
           <li
             key={s}
             className={
-              "rounded-lg border px-3 py-2 text-xs font-medium transition-colors " +
+              "rounded-lg border px-3 py-2 text-xs font-medium transition-colors motion-reduce:transition-none " +
               (done
-                ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+                ? "border-[color:var(--border)] bg-[var(--success-soft)] text-[var(--text)]"
                 : active
-                  ? "border-indigo-200 bg-indigo-50 text-indigo-800"
-                  : "border-slate-200 bg-white text-slate-600")
+                  ? "border-[color:var(--border)] bg-[var(--accent-soft)] text-[var(--text)]"
+                  : "border-[color:var(--border)] bg-[var(--surface)] text-[var(--text-muted)]")
             }
           >
             {getLabel(s)}
