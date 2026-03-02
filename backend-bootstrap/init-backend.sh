@@ -183,6 +183,62 @@ mkdir -p /var/www/backend
 
 tar -C /bootstrap/overrides -cf - . | tar -C /var/www/backend -xf -
 
+# Safety net: ensure Api\\ProjectController has an index() method because routes/api.php calls it.
+# The backend/ directory is runtime-scaffolded; this keeps existing workspaces from breaking.
+if [ -f app/Http/Controllers/Api/ProjectController.php ] && ! grep -Fq 'function index(' app/Http/Controllers/Api/ProjectController.php; then
+  echo "[backend_init] patching missing index() in Api\\ProjectController" >&2
+
+  tmp_file="$(mktemp)"
+  awk '
+    function print_index_method() {
+      print ""
+      print "    public function index(Request $request): JsonResponse"
+      print "    {"
+      print "        $projects = Project::query()"
+      print "            ->orderByDesc('updated_at')"
+      print "            ->limit(200)"
+      print "            ->get();"
+      print ""
+      print "        return response()->json(["
+      print "            'data' => $projects->map(static fn (Project $project): array => ["
+      print "                'id' => (string) $project->id,"
+      print "                'name' => $project->name,"
+      print "                'youtube_url' => $project->youtube_url,"
+      print "                'status' => $project->status->value,"
+      print "                'stage' => $project->stage,"
+      print "                'progress_percent' => $project->progress_percent,"
+      print "                'updated_at' => $project->updated_at?->toISOString(),"
+      print "                'created_at' => $project->created_at?->toISOString(),"
+      print "            ])->values(),"
+      print "        ]);"
+      print "    }"
+    }
+
+    BEGIN { inserted = 0; pending_class = 0 }
+    {
+      print $0
+
+      if (inserted == 0) {
+        if ($0 ~ /class[[:space:]]+ProjectController/) {
+          if ($0 ~ /\{/) {
+            print_index_method()
+            inserted = 1
+            pending_class = 0
+          } else {
+            pending_class = 1
+          }
+        } else if (pending_class == 1 && $0 ~ /\{/) {
+          print_index_method()
+          inserted = 1
+          pending_class = 0
+        }
+      }
+    }
+  ' app/Http/Controllers/Api/ProjectController.php > "$tmp_file"
+
+  mv "$tmp_file" app/Http/Controllers/Api/ProjectController.php
+fi
+
 # Guard against accidental "- >" sequences that break PHP parsing in Blade.
 if command -v find >/dev/null 2>&1 && command -v sed >/dev/null 2>&1; then
   find resources/views -type f -name "*.blade.php" -print0 2>/dev/null | xargs -0 sed -i -E 's/-[[:space:]]*>/->/g' 2>/dev/null || true
