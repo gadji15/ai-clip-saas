@@ -60,12 +60,17 @@ class Settings(BaseSettings):
     )
 
     max_clips: int = Field(5, ge=1, le=50)
-    clip_min_seconds: float = Field(15.0, ge=1)
-    clip_max_seconds: float = Field(60.0, ge=1)
+    clip_min_seconds: float = Field(60.0, ge=1)
+    clip_max_seconds: float = Field(180.0, ge=1)
+
+    subtitles_enabled: bool = Field(
+        True,
+        description="If true, burn-in subtitles during render",
+    )
 
     subtitle_template: str = Field(
-        "default",
-        description="Subtitle template: default|karaoke",
+        "modern",
+        description="Subtitle template: default|modern|karaoke|modern_karaoke",
     )
 
     target_fps: int = Field(30, ge=1, le=60)

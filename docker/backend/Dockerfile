@@ -6,6 +6,7 @@ RUN apt-get update \
         ca-certificates \
         curl \
         git \
+        gosu \
         unzip \
         zip \
         libicu-dev \

@@ -4,6 +4,7 @@
     "nav": {
       "dashboard": "Tableau de bord",
       "projects": "Projets",
+      "clips": "Clips",
       "billing": "Facturation",
       "settings": "Paramètres"
     },
@@ -23,7 +24,7 @@
     },
     "latest": {
       "title": "Projets récents",
-      "subtitle": "Connecté à l'API bientôt.",
+      "subtitle": "Projets mis à jour récemment.",
       "empty": "Aucun projet pour le moment.",
       "new": "Nouveau projet"
     }
@@ -60,7 +61,10 @@
       "optionsTitle": "Options",
       "optionsHint": "Vous pourrez ajuster plus finement après (V1.1).",
       "languageLabel": "Langue",
-      "clipLengthLabel": "Longueur cible (sec)",
+      "clipLengthLabel": "Durée du clip (sec)",
+      "subtitlesLabel": "Sous-titres",
+      "subtitlesOn": "Activés",
+      "subtitlesOff": "Désactivés",
       "create": "Créer le projet"
     }
   },
@@ -91,7 +95,7 @@
     },
     "artifacts": {
       "title": "Artefacts",
-      "subtitle": "Les téléchargements S3 seront branchés plus tard."
+      "subtitle": "Téléchargez les artefacts générés par le pipeline."
     },
     "clipStatus": {
       "ready": "Prêt",
@@ -106,7 +110,15 @@
     "clips": {
       "title": "Clips",
       "subtitle": "Les clips générés apparaîtront ici.",
-      "empty": "Aucun clip généré pour le moment."
+      "empty": "Aucun clip généré pour le moment.",
+      "subtitles": {
+        "on": "Sous-titres",
+        "off": "Sans sous-titres"
+      },
+      "titleSuggestion": "Titre suggéré",
+      "copyTitle": "Copier",
+      "copied": "Copié",
+      "open": "Ouvrir"
     }
   },
   "billing": {
@@ -159,6 +171,15 @@
       "notificationsHint": "Recevez des alertes quand un projet est terminé.",
       "save": "Sauvegarder"
     },
+    "theme": {
+      "title": "Thème",
+      "subtitle": "Choisissez l’apparence de l’application sur cet appareil.",
+      "options": {
+        "system": "Système",
+        "light": "Clair",
+        "dark": "Sombre"
+      }
+    },
     "danger": {
       "title": "Zone dangereuse",
       "subtitle": "Actions irréversibles.",
@@ -178,12 +199,55 @@
       "cta": "Action admin"
     }
   },
+  "clips": {
+    "title": "Clips",
+    "subtitle": "Parcourez, recherchez et téléchargez les clips générés depuis vos projets.",
+    "listTitle": "Tous les clips",
+    "searchPlaceholder": "Rechercher des clips…",
+    "count": "{shown} sur {total}",
+    "countEmpty": "Aucun clip",
+    "filters": {
+      "all": "Tous",
+      "pending": "En cours",
+      "processing": "En cours",
+      "ready": "Prêt",
+      "failed": "En erreur"
+    },
+    "view": {
+      "table": "Tableau",
+      "cards": "Cartes"
+    },
+    "table": {
+      "clip": "Clip",
+      "project": "Projet",
+      "status": "Statut",
+      "duration": "Durée",
+      "created": "Créé"
+    },
+    "cards": {
+      "duration": "Durée",
+      "created": "Créé"
+    },
+    "empty": {
+      "title": "Aucun clip",
+      "subtitle": "Créez un projet pour générer des clips, puis revenez ici pour les consulter.",
+      "action": "Voir les projets"
+    },
+    "noResults": {
+      "title": "Aucun clip ne correspond à votre recherche",
+      "subtitle": "Essayez un autre mot-clé ou réinitialisez les filtres.",
+      "reset": "Réinitialiser"
+    }
+  },
   "clip": {
     "back": "Retour",
     "title": "Clip {id}",
     "subtitle": "Prévisualisation, métadonnées et actions.",
     "status": {
-      "processing": "En cours"
+      "pending": "En cours",
+      "processing": "En cours",
+      "ready": "Prêt",
+      "failed": "En erreur"
     },
     "preview": {
       "title": "Aperçu",

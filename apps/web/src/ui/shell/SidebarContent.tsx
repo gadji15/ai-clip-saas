@@ -39,11 +39,16 @@ export function SidebarContent({
               className={cn(
                 'flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
                 active
-                  ? 'bg-slate-100 text-slate-900'
-                  : 'text-slate-700 hover:bg-slate-100'
+                  ? 'bg-[var(--surface-muted)] text-[var(--text)]'
+                  : 'text-[var(--text-muted)] hover:bg-[var(--surface-muted)] hover:text-[var(--text)]'
               )}
             >
-              <Icon className={cn('h-4 w-4', active ? 'text-slate-900' : 'text-slate-500')} />
+              <Icon
+                className={cn(
+                  'h-4 w-4',
+                  active ? 'text-[var(--text)]' : 'text-[var(--text-muted)]'
+                )}
+              />
               <span className="truncate">{t(item.translationKey)}</span>
             </Link>
           );
@@ -51,9 +56,9 @@ export function SidebarContent({
       </nav>
 
       <div className="mt-auto px-4 pb-4 pt-2">
-        <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
-          <div className="text-xs font-medium text-slate-700">Workspace</div>
-          <div className="mt-1 truncate text-sm text-slate-600">demo.youtok.com</div>
+        <div className="rounded-lg border border-[color:var(--border)] bg-[var(--surface-muted)] p-3">
+          <div className="text-xs font-medium text-[var(--text)]">Workspace</div>
+          <div className="mt-1 truncate text-sm text-[var(--text-muted)]">demo.youtok.com</div>
         </div>
       </div>
     </div>

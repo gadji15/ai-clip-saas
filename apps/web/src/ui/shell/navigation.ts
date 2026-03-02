@@ -1,6 +1,7 @@
 'use client';
 
 import {
+  Clapperboard,
   CreditCard,
   FolderKanban,
   LayoutDashboard,
@@ -24,6 +25,11 @@ export const appNavItems: AppNavItem[] = [
     href: '/projects',
     icon: FolderKanban,
     translationKey: 'nav.projects',
+  },
+  {
+    href: '/clips',
+    icon: Clapperboard,
+    translationKey: 'nav.clips',
   },
   {
     href: '/billing',

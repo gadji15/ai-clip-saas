@@ -1,10 +1,20 @@
 import type { Metadata } from 'next';
+import { Plus_Jakarta_Sans } from 'next/font/google';
 import { NextIntlClientProvider } from 'next-intl';
 
 import '../globals.css';
-import { AppShell } from '../../ui/shell/AppShell';
 import { getMessages } from '../../i18n/getMessages';
 import { isLocale, type AppLocale } from '../../i18n/locales';
+import { AppShell } from '@/ui/shell/AppShell';
+import { PageTransition } from '@/ui/shell/PageTransition';
+import { ThemeProvider } from '@/ui/theme/ThemeProvider';
+import { ThemeScript } from '@/ui/theme/ThemeScript';
+
+const sans = Plus_Jakarta_Sans({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-sans',
+});
 
 export const metadata: Metadata = {
   title: 'YouTok',
@@ -24,11 +34,18 @@ export default async function RootLayout({
   const messages = getMessages(locale);
 
   return (
-    <html lang={locale}>
+    <html lang={locale} className={sans.variable} suppressHydrationWarning>
+      <head>
+        <ThemeScript />
+      </head>
       <body>
-        <NextIntlClientProvider locale={locale} messages={messages}>
-          <AppShell>{children}</AppShell>
-        </NextIntlClientProvider>
+        <ThemeProvider>
+          <NextIntlClientProvider locale={locale} messages={messages}>
+            <AppShell>
+              <PageTransition>{children}</PageTransition>
+            </AppShell>
+          </NextIntlClientProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

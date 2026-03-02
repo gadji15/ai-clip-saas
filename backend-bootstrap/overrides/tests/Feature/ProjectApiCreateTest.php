@@ -26,6 +26,11 @@ class ProjectApiCreateTest extends TestCase
             ->postJson('/api/projects', [
                 'name' => 'Test',
                 'youtube_url' => 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+                'language' => 'fr',
+                'subtitles_enabled' => false,
+                'clip_min_seconds' => 60,
+                'clip_max_seconds' => 180,
+                'subtitle_template' => 'modern',
             ])
             ->assertCreated();
 
@@ -33,6 +38,11 @@ class ProjectApiCreateTest extends TestCase
 
         $project = Project::query()->findOrFail($projectId);
         $this->assertSame(ProjectStatus::queued, $project->status);
+        $this->assertSame('fr', $project->language);
+        $this->assertFalse($project->subtitles_enabled);
+        $this->assertSame(60, $project->clip_min_seconds);
+        $this->assertSame(180, $project->clip_max_seconds);
+        $this->assertSame('modern', $project->subtitle_template);
 
         $this->assertTrue(PipelineEvent::query()
             ->where('project_id', $projectId)

@@ -35,6 +35,12 @@ if [ "$(id -u)" = "0" ]; then
     export BACKEND_INIT_DROPPED_PRIVS=1
     exec gosu "${DOCKER_UID:-1000}:${DOCKER_GID:-1000}" /bin/bash /bootstrap/init-backend.sh
   fi
+
+  echo "[backend_init] WARNING: gosu not found; backend files may end up owned by root" >&2
+
+  # If gosu isn't available for some reason, make a best-effort to avoid leaving
+  # unreadable root-owned files behind.
+  umask 002
 fi
 
 echo "[backend_init] ensuring Laravel project exists in /var/www/backend" >&2
@@ -163,10 +169,41 @@ fi
 
 # Apply repo-managed overrides (controllers, models, routes, etc.)
 # We use tar to avoid requiring rsync in the container.
+#
+# Cleanup for legacy/accidental file placements from earlier iterations.
+# If a previous boot wrote the API controller into the non-API path, it will
+# conflict at runtime with the correct Api\ProjectController.
+if [ -f app/Http/Controllers/ProjectController.php ] && grep -Eqi "namespace[[:space:]]+App\\Http\\Controllers\\Api" app/Http/Controllers/ProjectController.php; then
+  echo "[backend_init] removing legacy misplaced Api\\ProjectController" >&2
+  rm -f app/Http/Controllers/ProjectController.php
+fi
+
 echo "[backend_init] applying backend overrides" >&2
 mkdir -p /var/www/backend
 
 tar -C /bootstrap/overrides -cf - . | tar -C /var/www/backend -xf -
+
+# The overrides directory is the source of truth for API controllers.
+# Copy them explicitly to avoid any "partial copy" edge cases.
+mkdir -p app/Http/Controllers/Api
+for src in /bootstrap/overrides/app/Http/Controllers/Api/*.php; do
+  if [ -f "$src" ]; then
+    cp -f "$src" "app/Http/Controllers/Api/$(basename "$src")"
+  fi
+done
+
+# Also force the web ProjectController override, as earlier iterations may have
+# accidentally written an Api\\ProjectController into the web path.
+if [ -f /bootstrap/overrides/app/Http/Controllers/ProjectController.php ]; then
+  cp -f /bootstrap/overrides/app/Http/Controllers/ProjectController.php app/Http/Controllers/ProjectController.php
+fi
+
+# Some earlier bootstraps ended up with an Api\ProjectController without index().
+# Ensure the internal API listing endpoint exists by copying the override.
+if [ -f app/Http/Controllers/Api/ProjectController.php ] && ! grep -q "function index" app/Http/Controllers/Api/ProjectController.php; then
+  echo "[backend_init] copying Api\\ProjectController override (missing index())" >&2
+  cp -f /bootstrap/overrides/app/Http/Controllers/Api/ProjectController.php app/Http/Controllers/Api/ProjectController.php
+fi
 
 # Guard against accidental "- >" sequences that break PHP parsing in Blade.
 if command -v find >/dev/null 2>&1 && command -v sed >/dev/null 2>&1; then
@@ -176,22 +213,16 @@ fi
 rm -f storage/framework/views/*.php 2>/dev/null || true
 php artisan view:clear || true
 
-# Append missing repo-specific vars for convenience.
-for kv in \
-  "ADMIN_EMAILS=${ADMIN_EMAILS:-admin@example.com}" \
-  "ADMIN_PASSWORD=${ADMIN_PASSWORD:-password}" \
-  "INTERNAL_API_SECRET=${INTERNAL_API_SECRET:-change-me}" \
-  "VIDEO_WORKER_BASE_URL=${VIDEO_WORKER_BASE_URL:-}" \
-  "VIDEO_WORKER_API_KEY=${VIDEO_WORKER_API_KEY:-}" \
-  "VIDEO_WORKER_CALLBACK_SECRET=${VIDEO_WORKER_CALLBACK_SECRET:-change-me-too}" \
-  "WORKER_CALLBACK_URL=${WORKER_CALLBACK_URL:-http://backend:8000/api/worker/callback}" \
-  "SHARED_STORAGE_ROOT=${SHARED_STORAGE_ROOT:-/shared}" \
-; do
-  key="${kv%%=*}"
-  if ! grep -q "^${key}=" .env; then
-    echo "${kv}" >> .env
-  fi
-done
+# Sync repo-specific vars to .env (source of truth is docker-compose env).
+# This avoids stale values sticking around across backend_init runs.
+upsert_env_kv ADMIN_EMAILS "${ADMIN_EMAILS:-admin@example.com}"
+upsert_env_kv ADMIN_PASSWORD "${ADMIN_PASSWORD:-password}"
+upsert_env_kv INTERNAL_API_SECRET "${INTERNAL_API_SECRET:-change-me}"
+upsert_env_kv VIDEO_WORKER_BASE_URL "${VIDEO_WORKER_BASE_URL:-}"
+upsert_env_kv VIDEO_WORKER_API_KEY "${VIDEO_WORKER_API_KEY:-}"
+upsert_env_kv VIDEO_WORKER_CALLBACK_SECRET "${VIDEO_WORKER_CALLBACK_SECRET:-change-me-too}"
+upsert_env_kv WORKER_CALLBACK_URL "${WORKER_CALLBACK_URL:-http://backend:8000/api/worker/callback}"
+upsert_env_kv SHARED_STORAGE_ROOT "${SHARED_STORAGE_ROOT:-/shared}"
 
 fix_env_perms
 
@@ -235,5 +266,11 @@ php artisan migrate --force
 
 echo "[backend_init] seeding" >&2
 php artisan db:seed --force
+
+# Final permission fix in case any step created root-owned files.
+if [ "$(id -u)" = "0" ]; then
+  chown -R "${DOCKER_UID:-1000}":"${DOCKER_GID:-1000}" /var/www/backend || true
+  chmod -R ug+rwX /var/www/backend || true
+fi
 
 echo "[backend_init] done" >&2

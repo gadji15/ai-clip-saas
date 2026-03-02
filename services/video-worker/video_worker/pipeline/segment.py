@@ -5,6 +5,7 @@ from dataclasses import asdict
 from pathlib import Path
 
 from .features import compute_audio_window_features, compute_motion_score
+from .titles import generate_clip_title
 from .types import ClipCandidate, TranscriptSegment
 
 
@@ -53,6 +54,7 @@ def segment_candidates(
     max_clips: int,
     audio_path: Path | None = None,
     video_path: Path | None = None,
+    language: str | None = None,
 ) -> list[ClipCandidate]:
     if not segments:
         return []
@@ -89,7 +91,8 @@ def segment_candidates(
                 break
 
             density = agg_score / max(duration, 0.001)
-            length_penalty = 1.0 - 0.15 * abs(duration - 30.0) / 30.0
+            target = (min_seconds + max_seconds) / 2.0
+            length_penalty = 1.0 - 0.15 * abs(duration - target) / max(target, 0.001)
             length_penalty = max(0.6, min(1.0, length_penalty))
 
             score = density * length_penalty
@@ -192,13 +195,24 @@ def segment_candidates(
 
     final: list[ClipCandidate] = []
     for idx, c in enumerate(enriched[:max_clips], start=1):
+        base = ClipCandidate(
+            clip_id=f"clip_{idx:03d}",
+            start_seconds=round(c.start_seconds, 2),
+            end_seconds=round(c.end_seconds, 2),
+            score=round(c.score, 4),
+            reason=c.reason,
+        )
+
+        title = generate_clip_title(clip=base, segments=segments, language=language)
+
         final.append(
             ClipCandidate(
-                clip_id=f"clip_{idx:03d}",
-                start_seconds=round(c.start_seconds, 2),
-                end_seconds=round(c.end_seconds, 2),
-                score=round(c.score, 4),
-                reason=c.reason,
+                clip_id=base.clip_id,
+                start_seconds=base.start_seconds,
+                end_seconds=base.end_seconds,
+                score=base.score,
+                reason=base.reason,
+                title=title,
             )
         )
 
