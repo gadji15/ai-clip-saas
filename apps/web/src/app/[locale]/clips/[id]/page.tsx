@@ -113,8 +113,8 @@ export default async function ClipDetailsPage({
 function MetaRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-center justify-between gap-3">
-      <div className="text-[var(--text-muted)]">{lab}</  div>
-     <Ndiv className="truncate font-medium text-[{value}</div>
+      <div className="text-[var(--text-muted)]">{label}</div>
+      <div className="truncate font-medium text-[var(--text)]">{value}</div>
     </div>
   );
 }
