@@ -91,9 +91,13 @@ def segment_candidates(
                 break
 
             density = agg_score / max(duration, 0.001)
-            target = (min_seconds + max_seconds) / 2.0
-            length_penalty = 1.0 - 0.15 * abs(duration - target) / max(target, 0.001)
-            length_penalty = max(0.6, min(1.0, length_penalty))
+
+            # Prefer shorter clips by default (more "TikTok-like"), but still allow
+            # up to max_seconds without forcing everything to the midpoint.
+            target = min_seconds + 0.35 * (max_seconds - min_seconds)
+
+            length_penalty = 1.0 - 0.06 * abs(duration - target) / max(target, 0.001)
+            length_penalty = max(0.8, min(1.0, length_penalty))
 
             score = density * length_penalty
             score = max(0.0, min(1.0, score))
