@@ -8,6 +8,7 @@ RUN apt-get update \
         gcc g++ \
         libglib2.0-0 \
         libgl1 \
+        nodejs \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt ./requirements.txt

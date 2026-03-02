@@ -141,6 +141,7 @@ def process_job(
             youtube_url=ctx.youtube_url,
             output_path=ctx.source_video_path,
             logger=logger,
+            language=language,
             max_retries=settings.download_max_retries,
             retry_backoff_seconds=settings.download_retry_backoff_seconds,
         )

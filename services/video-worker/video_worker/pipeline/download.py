@@ -9,11 +9,23 @@ from ..utils.retry import retry
 from ..utils.subprocess import run
 
 
+def _yt_dlp_format_for_language(language: str | None) -> str:
+    lang = (language or "").lower().strip()
+
+    # Prefer dubbed audio tracks exposed via HLS where available.
+    # yt-dlp surfaces these as `best[language=fr]` etc.
+    if lang == "fr":
+        return "best[language=fr]/bestvideo+bestaudio/best"
+
+    return "bestvideo+bestaudio/best"
+
+
 def download_youtube_video(
     *,
     youtube_url: str,
     output_path: Path,
     logger: structlog.BoundLogger,
+    language: str | None = None,
     max_retries: int = 2,
     retry_backoff_seconds: float = 1.0,
 ) -> Path:
@@ -45,26 +57,38 @@ def download_youtube_video(
 
     def _do_download() -> None:
         _cleanup_temp()
-        run(
-            [
-                "yt-dlp",
-                "--no-progress",
-                "--no-playlist",
-                "--retries",
-                "3",
-                "--fragment-retries",
-                "3",
-                "-f",
-                "bestvideo+bestaudio/best",
-                "--merge-output-format",
-                "mp4",
-                "--force-overwrites",
-                "-o",
-                str(tmp_template),
-                youtube_url,
-            ],
-            logger=logger,
-        )
+        format_selector = _yt_dlp_format_for_language(language)
+
+        cmd = [
+            "yt-dlp",
+            "--no-progress",
+            "--no-playlist",
+            "--retries",
+            "3",
+            "--fragment-retries",
+            "3",
+            "-f",
+            format_selector,
+            "--merge-output-format",
+            "mp4",
+            "--force-overwrites",
+            "-o",
+            str(tmp_template),
+        ]
+
+        # Dubbed/multi-audio tracks are often behind YouTube's JS challenges.
+        # These flags make yt-dlp more reliable when a Node runtime is available.
+        if (language or "").lower().strip() == "fr":
+            cmd += [
+                "--js-runtimes",
+                "node",
+                "--remote-components",
+                "ejs:github",
+            ]
+
+        cmd += [youtube_url]
+
+        run(cmd, logger=logger)
 
     retry(
         _do_download,
