@@ -1,6 +1,9 @@
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 
+import type { ApiProjectDetail, ApiProjectStatus } from "@/lib/api/contracts";
+import { laravelInternalFetch } from "@/lib/server/laravel";
 import { Badge } from "@/ui/primitives/Badge";
 import { Button } from "@/ui/primitives/Button";
 import { buttonStyles } from "@/ui/primitives/buttonStyles";
@@ -16,9 +19,10 @@ import { CopyButton } from "@/ui/shell/CopyButton";
 import { PageHeader } from "@/ui/shell/PageHeader";
 import { PipelineProgress } from "@/ui/shell/PipelineProgress";
 
-type ProjectStatus = "queued" | "processing" | "completed" | "failed";
+type ProjectStatus = ApiProjectStatus;
 
 const stages = ["download", "transcribe", "segment", "render", "done"] as const;
+const knownStages = new Set(stages);
 
 type Stage = (typeof stages)[number];
 
@@ -31,93 +35,87 @@ export default async function ProjectDetailsPage({
   const { locale, id } = await params;
   const t = await getTranslations("project");
 
-  // Mock project based on id
-  const status: ProjectStatus = id.includes("failed")
-    ? "failed"
-    : id.includes("1")
-      ? "completed"
-      : "processing";
-  const stage: Stage =
-    status === "completed"
-      ? "done"
-      : status === "failed"
-        ? "render"
-        : "transcribe";
-  const progress = status === "completed" ? 100 : status === "failed" ? 72 : 42;
+  const res = await laravelInternalFetch(`/api/projects/${encodeURIComponent(id)}`);
+  if (res.status === 404) {
+    notFound();
+  }
+  if (!res.ok) {
+    throw new Error('Failed to load project.');
+  }
+
+  const project = (await res.json()) as ApiProjectDetail;
+
+  const status: ProjectStatus = project.status;
+  const stage: Stage = ((): Stage => {
+    const s = project.stage;
+    if (s && knownStages.has(s as Stage)) {
+      return s as Stage;
+    }
+
+    if (status === "completed") return "done";
+    if (status === "queued") return "download";
+    return "transcribe";
+  })();
+
+  const progress = project.progress_percent ?? (status === "completed" ? 100 : 0);
 
   const stageLabel = t(`stages.${stage}`);
 
-  const clips = [
-    {
-      id: "clip_001",
-      score: 0.86,
-      durationSeconds: 74,
-      subtitlesEnabled: true,
-      status: "ready" as const,
-      viralTitle:
-        locale === "fr"
-          ? "Ne fais plus cette erreur (ça change tout)"
-          : "Stop making this mistake (it changes everything)",
-      videoUrl: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4",
-    },
-    {
-      id: "clip_002",
-      score: 0.77,
-      durationSeconds: 122,
-      subtitlesEnabled: false,
-      status: "ready" as const,
-      viralTitle:
-        locale === "fr"
-          ? "Et si tu pouvais faire ça 2× plus vite ?"
-          : "What if you could do this 2× faster?",
-      videoUrl: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4",
-    },
-    {
-      id: "clip_003",
-      score: 0.41,
-      durationSeconds: 98,
-      subtitlesEnabled: true,
-      status: "pending" as const,
-      viralTitle:
-        locale === "fr"
-          ? "La partie que tout le monde rate"
-          : "The part everyone misses",
-      videoUrl: "",
-    },
-  ];
+  const clips = project.clips.map((c) => {
+    const durationSeconds = c.duration_seconds ? Math.round(c.duration_seconds) : 0;
+    const labelId = c.external_id ?? c.id;
 
-  const events = [
-    { ts: "12:03", message: "Downloading source video" },
-    { ts: "12:05", message: "Extracting audio" },
-    { ts: "12:07", message: "Running transcription (Whisper)" },
-    { ts: "12:12", message: "Segment scoring" },
-  ];
+    return {
+      id: c.id,
+      labelId,
+      score: c.score ?? 0,
+      durationSeconds,
+      subtitlesEnabled: Boolean(project.options.subtitles_enabled),
+      status: c.status,
+      viralTitle: c.title ?? labelId,
+      videoUrl: c.status === "ready" && c.video_path ? `/api/clips/${c.id}/video` : "",
+    };
+  });
+
+  const events = [...project.events]
+    .reverse()
+    .map((e) => {
+      const d = e.created_at ? new Date(e.created_at) : null;
+      const ts = d
+        ? new Intl.DateTimeFormat(locale, { timeStyle: "short" }).format(d)
+        : "—";
+
+      return {
+        ts,
+        message: e.message ?? e.type,
+      };
+    });
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title={id}
-        description={t('overview.subtitle')}
+        title={project.name}
+        description={project.youtube_url}
         actions={
           <>
             <Link
               href={`/${locale}/projects`}
-              className={buttonStyles({ variant: 'ghost', size: 'sm' })}
+              className={buttonStyles({ variant: "ghost", size: "sm" })}
             >
-              {t('back')}
+              {t("back")}
             </Link>
             <StatusBadge
               status={status}
               labels={{
-                queued: t('status.queued'),
-                processing: t('status.processing'),
-                completed: t('status.completed'),
-                failed: t('status.failed'),
+                queued: t("status.queued"),
+                processing: t("status.processing"),
+                completed: t("status.completed"),
+                failed: t("status.failed"),
               }}
             />
-            <Button disabled>{t('actions.retry')}</Button>
+            <Button disabled>{t("actions.retry")}</Button>
             <Button variant="danger" disabled>
-              {t('actions.delete')}
+              {t("actions.delete")}
             </Button>
           </>
         }
@@ -177,24 +175,21 @@ export default async function ProjectDetailsPage({
           </CardHeader>
           <CardContent>
             <div className="grid gap-2">
-              <button
-                className="w-full rounded-lg border border-[color:var(--border)] bg-[var(--surface)] px-3 py-2 text-left text-sm text-[var(--text-muted)] transition-colors hover:bg-[var(--surface-muted)] motion-reduce:transition-none"
-                disabled
-              >
-                transcript.json
-              </button>
-              <button
-                className="w-full rounded-lg border border-[color:var(--border)] bg-[var(--surface)] px-3 py-2 text-left text-sm text-[var(--text-muted)] transition-colors hover:bg-[var(--surface-muted)] motion-reduce:transition-none"
-                disabled
-              >
-                subtitles.srt
-              </button>
-              <button
-                className="w-full rounded-lg border border-[color:var(--border)] bg-[var(--surface)] px-3 py-2 text-left text-sm text-[var(--text-muted)] transition-colors hover:bg-[var(--surface-muted)] motion-reduce:transition-none"
-                disabled
-              >
-                clips.json
-              </button>
+              <ArtifactLink
+                href={`/api/projects/${project.id}/artifacts/transcript`}
+                label="transcript.json"
+                enabled={Boolean(project.artifacts.transcript_json_path)}
+              />
+              <ArtifactLink
+                href={`/api/projects/${project.id}/artifacts/subtitles`}
+                label="subtitles.srt"
+                enabled={Boolean(project.artifacts.subtitles_srt_path)}
+              />
+              <ArtifactLink
+                href={`/api/projects/${project.id}/artifacts/clips`}
+                label="clips.json"
+                enabled={Boolean(project.artifacts.clips_json_path)}
+              />
             </div>
           </CardContent>
         </Card>
@@ -247,7 +242,7 @@ export default async function ProjectDetailsPage({
                           {c.viralTitle}
                         </div>
                         <div className="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-[var(--text-muted)]">
-                          <span>{c.id}</span>
+                          <span>{c.labelId}</span>
                           <span aria-hidden="true">•</span>
                           <span>{formatDuration(c.durationSeconds)}</span>
                           <span aria-hidden="true">•</span>
@@ -259,14 +254,16 @@ export default async function ProjectDetailsPage({
                           {t(`clipStatus.${c.status}`)}
                         </Badge>
                         <Badge variant="secondary">
-                          {c.subtitlesEnabled ? t("clips.subtitles.on") : t("clips.subtitles.off")}
+                          {c.subtitlesEnabled
+                            ? t("clips.subtitles.on")
+                            : t("clips.subtitles.off")}
                         </Badge>
                       </div>
                     </div>
 
                     <div className="mt-3 overflow-hidden rounded-xl border border-[color:var(--border)] bg-[var(--surface-muted)]">
                       <div className="aspect-[9/16]">
-                        {c.status === "ready" ? (
+                        {c.videoUrl ? (
                           <video
                             controls
                             preload="metadata"
@@ -335,4 +332,31 @@ function formatDuration(totalSeconds: number) {
   return `${m}:${String(r).padStart(2, "0")}`;
 }
 
+function ArtifactLink({
+  href,
+  label,
+  enabled,
+}: {
+  href: string;
+  label: string;
+  enabled: boolean;
+}) {
+  const className =
+    "w-full rounded-lg border border-[color:var(--border)] bg-[var(--surface)] px-3 py-2 text-left text-sm transition-colors motion-reduce:transition-none";
 
+  if (!enabled) {
+    return <div className={className + " text-[var(--text-muted)] opacity-60"}>{label}</div>;
+  }
+
+  return (
+    <a
+      href={href}
+      className={
+        className +
+        " text-[var(--text-muted)] hover:bg-[var(--surface-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--surface)]"
+      }
+    >
+      {label}
+    </a>
+  );
+}

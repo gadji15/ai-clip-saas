@@ -1,15 +1,18 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
-import { buttonStyles } from "../../ui/primitives/buttonStyles";
+import type { ApiProjectsIndexResponse, ApiProjectStatus } from "@/lib/api/contracts";
+import { laravelInternalFetch } from "@/lib/server/laravel";
+import { Badge } from "@/ui/primitives/Badge";
+import { buttonStyles } from "@/ui/primitives/buttonStyles";
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
-} from "../../ui/primitives/Card";
-import { EmptyState } from "../../ui/shell/EmptyState";
-import { PageHeader } from "../../ui/shell/PageHeader";
+} from "@/ui/primitives/Card";
+import { EmptyState } from "@/ui/shell/EmptyState";
+import { PageHeader } from "@/ui/shell/PageHeader";
 
 export default async function DashboardPage({
   params,
@@ -22,15 +25,37 @@ export default async function DashboardPage({
   const { locale } = await params;
   const t = await getTranslations("dashboard");
 
+  const res = await laravelInternalFetch("/api/projects");
+  if (!res.ok) {
+    throw new Error('Failed to load projects.');
+  }
+  const json = (await res.json()) as ApiProjectsIndexResponse;
+  const projects = json.data;
+
+  const counts = projects.reduce(
+    (acc, p) => {
+      acc[p.status] += 1;
+      return acc;
+    },
+    {
+      queued: 0,
+      processing: 0,
+      completed: 0,
+      failed: 0,
+    } satisfies Record<ApiProjectStatus, number>
+  );
+
+  const latest = projects.slice(0, 5);
+
   return (
     <div className="space-y-6">
       <PageHeader title={t("title")} description={t("subtitle")} />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <KpiCard label={t("kpi.queued")} value="0" />
-        <KpiCard label={t("kpi.processing")} value="0" />
-        <KpiCard label={t("kpi.completed")} value="0" />
-        <KpiCard label={t("kpi.failed")} value="0" />
+        <KpiCard label={t("kpi.queued")} value={String(counts.queued)} />
+        <KpiCard label={t("kpi.processing")} value={String(counts.processing)} />
+        <KpiCard label={t("kpi.completed")} value={String(counts.completed)} />
+        <KpiCard label={t("kpi.failed")} value={String(counts.failed)} />
       </div>
 
       <Card>
@@ -49,11 +74,37 @@ export default async function DashboardPage({
         </CardHeader>
 
         <CardContent>
-          <EmptyState
-            title={t("latest.empty")}
-            actionLabel={t("latest.new")}
-            actionHref={`/${locale}/projects/new`}
-          />
+          {latest.length === 0 ? (
+            <EmptyState
+              title={t("latest.empty")}
+              actionLabel={t("latest.new")}
+              actionHref={`/${locale}/projects/new`}
+            />
+          ) : (
+            <div className="divide-y divide-[color:var(--border)] overflow-hidden rounded-lg border border-[color:var(--border)] bg-[var(--surface)]">
+              {latest.map((p) => (
+                <Link
+                  key={p.id}
+                  href={`/${locale}/projects/${p.id}`}
+                  className="flex items-center justify-between gap-4 px-4 py-3 text-sm transition-colors hover:bg-[var(--surface-muted)] motion-reduce:transition-none"
+                >
+                  <div className="min-w-0">
+                    <div className="truncate font-medium text-[var(--text)]">{p.name}</div>
+                    <div className="mt-0.5 truncate text-xs text-[var(--text-muted)]">{p.id}</div>
+                  </div>
+                  <StatusBadge
+                    status={p.status}
+                    labels={{
+                      queued: t("kpi.queued"),
+                      processing: t("kpi.processing"),
+                      completed: t("kpi.completed"),
+                      failed: t("kpi.failed"),
+                    }}
+                  />
+                </Link>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
@@ -67,4 +118,23 @@ function KpiCard({ label, value }: { label: string; value: string }) {
       <div className="mt-2 text-2xl font-semibold text-[var(--text)]">{value}</div>
     </div>
   );
+}
+
+function StatusBadge({
+  status,
+  labels,
+}: {
+  status: ApiProjectStatus;
+  labels: Record<ApiProjectStatus, string>;
+}) {
+  const variant =
+    status === "completed"
+      ? "success"
+      : status === "failed"
+        ? "danger"
+        : status === "processing"
+          ? "warning"
+          : "secondary";
+
+  return <Badge variant={variant}>{labels[status]}</Badge>;
 }

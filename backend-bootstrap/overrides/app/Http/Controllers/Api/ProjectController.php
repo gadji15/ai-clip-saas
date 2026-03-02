@@ -14,6 +14,27 @@ use Illuminate\Http\Request;
 
 class ProjectController
 {
+    public function index(Request $request): JsonResponse
+    {
+        $projects = Project::query()
+            ->orderByDesc('updated_at')
+            ->limit(200)
+            ->get();
+
+        return response()->json([
+            'data' => $projects->map(static fn (Project $project): array => [
+                'id' => (string) $project->id,
+                'name' => $project->name,
+                'youtube_url' => $project->youtube_url,
+                'status' => $project->status->value,
+                'stage' => $project->stage,
+                'progress_percent' => $project->progress_percent,
+                'updated_at' => $project->updated_at?->toISOString(),
+                'created_at' => $project->created_at?->toISOString(),
+            ])->values(),
+        ]);
+    }
+
     public function store(Request $request): JsonResponse
     {
         $data = $request->validate([

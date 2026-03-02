@@ -24,7 +24,7 @@
     },
     "latest": {
       "title": "Projets récents",
-      "subtitle": "Connecté à l'API bientôt.",
+      "subtitle": "Projets mis à jour récemment.",
       "empty": "Aucun projet pour le moment.",
       "new": "Nouveau projet"
     }
@@ -95,7 +95,7 @@
     },
     "artifacts": {
       "title": "Artefacts",
-      "subtitle": "Les téléchargements S3 seront branchés plus tard."
+      "subtitle": "Téléchargez les artefacts générés par le pipeline."
     },
     "clipStatus": {
       "ready": "Prêt",
@@ -208,6 +208,7 @@
     "countEmpty": "Aucun clip",
     "filters": {
       "all": "Tous",
+      "pending": "En cours",
       "processing": "En cours",
       "ready": "Prêt",
       "failed": "En erreur"
@@ -243,6 +244,7 @@
     "title": "Clip {id}",
     "subtitle": "Prévisualisation, métadonnées et actions.",
     "status": {
+      "pending": "En cours",
       "processing": "En cours",
       "ready": "Prêt",
       "failed": "En erreur"

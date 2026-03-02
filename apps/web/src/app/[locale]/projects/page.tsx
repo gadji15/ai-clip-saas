@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
+import type { ApiProjectsIndexResponse, ApiProjectStatus } from "@/lib/api/contracts";
+import { laravelInternalFetch } from "@/lib/server/laravel";
 import { Badge } from "@/ui/primitives/Badge";
 import { buttonStyles } from "@/ui/primitives/buttonStyles";
 import { Card, CardContent, CardHeader, CardTitle } from "@/ui/primitives/Card";
@@ -8,45 +10,18 @@ import { Input } from "@/ui/primitives/Input";
 import { Progress } from "@/ui/primitives/Progress";
 import { PageHeader } from "@/ui/shell/PageHeader";
 
-type ProjectStatus = "queued" | "processing" | "completed" | "failed";
-
-type Stage = "download" | "transcribe" | "segment" | "render" | "done";
+type ProjectStatus = ApiProjectStatus;
 
 type ProjectRow = {
   id: string;
   name: string;
   status: ProjectStatus;
-  stage: Stage;
+  stage: string | null;
   progress: number;
-  updatedAt: string;
+  updatedAt: string | null;
 };
 
-const mockProjects: ProjectRow[] = [
-  {
-    id: "proj_8f2c",
-    name: "Best of Podcast #12",
-    status: "processing",
-    stage: "transcribe",
-    progress: 42,
-    updatedAt: new Date(Date.now() - 1000 * 60 * 12).toISOString(),
-  },
-  {
-    id: "proj_1aa9",
-    name: "YouTube Shorts — Compilation",
-    status: "completed",
-    stage: "done",
-    progress: 100,
-    updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString(),
-  },
-  {
-    id: "proj_33b1",
-    name: "Interview Founder",
-    status: "failed",
-    stage: "render",
-    progress: 72,
-    updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 28).toISOString(),
-  },
-];
+const knownStages = new Set(["download", "transcribe", "segment", "render", "done"]);
 
 export default async function ProjectsPage({
   params,
@@ -62,6 +37,21 @@ export default async function ProjectsPage({
     dateStyle: "medium",
     timeStyle: "short",
   });
+
+  const res = await laravelInternalFetch("/api/projects");
+  if (!res.ok) {
+    throw new Error('Failed to load projects.');
+  }
+  const json = (await res.json()) as ApiProjectsIndexResponse;
+
+  const projects: ProjectRow[] = json.data.map((p) => ({
+    id: p.id,
+    name: p.name,
+    status: p.status,
+    stage: p.stage,
+    progress: p.progress_percent ?? (p.status === "completed" ? 100 : 0),
+    updatedAt: p.updated_at,
+  }));
 
   return (
     <div className="space-y-6">
@@ -95,7 +85,7 @@ export default async function ProjectsPage({
             </div>
 
             <div className="divide-y divide-[color:var(--border)]">
-              {mockProjects.map((p) => (
+              {projects.map((p) => (
                 <Link
                   key={p.id}
                   href={`/${locale}/projects/${p.id}`}
@@ -111,7 +101,9 @@ export default async function ProjectsPage({
                     <div className="mt-2 flex items-center gap-2">
                       <Progress value={p.progress} className="h-1.5" />
                       <div className="shrink-0 text-[11px] font-medium text-[var(--text-muted)]">
-                        {tProject(`stages.${p.stage}`)}
+                        {p.stage && knownStages.has(p.stage)
+                          ? tProject(`stages.${p.stage}`)
+                          : p.stage ?? "—"}
                       </div>
                     </div>
                   </div>
@@ -127,7 +119,7 @@ export default async function ProjectsPage({
                     />
                   </div>
                   <div className="col-span-2 text-right text-xs text-[var(--text-muted)]">
-                    {df.format(new Date(p.updatedAt))}
+                    {p.updatedAt ? df.format(new Date(p.updatedAt)) : "—"}
                   </div>
                 </Link>
               ))}

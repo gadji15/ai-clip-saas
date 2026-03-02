@@ -30,18 +30,66 @@ export function CreateProjectForm({ redirectLocale }: { redirectLocale: string }
 
   const videoId = useMemo(() => parseYoutubeVideoId(url), [url]);
   const urlOk = videoId !== null;
-  const canSubmit = urlOk && clipLengthOk;
+  const nameOk = name.trim().length > 0;
+  const canSubmit = nameOk && urlOk && clipLengthOk;
 
-  function onSubmit(e: FormEvent) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
+  async function onSubmit(e: FormEvent) {
     e.preventDefault();
+    if (!canSubmit || isSubmitting) return;
 
-    // Mock behavior for now: redirect to a fake project id.
-    const id = 'proj_demo';
-    router.push(`/${redirectLocale}/projects/${id}`);
+    setIsSubmitting(true);
+    setSubmitError(null);
+
+    const res = await fetch('/api/projects', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        name: name.trim(),
+        youtube_url: url.trim(),
+        language,
+        subtitles_enabled: subtitlesEnabled,
+        clip_min_seconds: 60,
+        clip_max_seconds: clipMaxSeconds,
+        subtitle_template: 'modern',
+      }),
+    });
+
+    const json = (await res.json().catch(() => null)) as
+      | { id: string }
+      | { message?: string; errors?: Record<string, string[]> }
+      | null;
+
+    if (!res.ok || !json || !('id' in json)) {
+      const message =
+        (json && 'message' in json && typeof json.message === 'string' && json.message) ||
+        (json && 'errors' in json && json.errors
+          ? Object.values(json.errors)
+              .flat()
+              .filter(Boolean)[0]
+          : null) ||
+        'Failed to create project.';
+
+      setSubmitError(message);
+      setIsSubmitting(false);
+      return;
+    }
+
+    router.push(`/${redirectLocale}/projects/${json.id}`);
   }
 
   return (
     <form onSubmit={onSubmit} className="grid gap-5">
+      {submitError ? (
+        <div className="rounded-xl border border-[color:var(--danger)]/30 bg-[var(--danger)]/10 p-4 text-sm text-[var(--danger)]">
+          {submitError}
+        </div>
+      ) : null}
+
       <div className="grid gap-2">
         <label className="text-xs font-medium text-[var(--text-muted)]">{t('form.nameLabel')}</label>
         <Input
@@ -131,7 +179,7 @@ export function CreateProjectForm({ redirectLocale }: { redirectLocale: string }
       </div>
 
       <div className="flex items-center justify-end">
-        <Button variant="primary" disabled={!canSubmit}>
+        <Button variant="primary" disabled={!canSubmit || isSubmitting}>
           {t('form.create')}
         </Button>
       </div>

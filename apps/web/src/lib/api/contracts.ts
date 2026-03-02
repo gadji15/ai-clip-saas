@@ -45,6 +45,21 @@ export type ApiProjectOptions = {
   subtitle_template: string | null;
 };
 
+export type ApiProjectListItem = {
+  id: string;
+  name: string;
+  youtube_url: string;
+  status: ApiProjectStatus;
+  stage: string | null;
+  progress_percent: number | null;
+  created_at: string | null;
+  updated_at: string | null;
+};
+
+export type ApiProjectsIndexResponse = {
+  data: ApiProjectListItem[];
+};
+
 export type ApiProjectDetail = {
   id: string;
   name: string;
@@ -73,4 +88,44 @@ export type ApiCreateProjectRequest = {
   clip_min_seconds?: number;
   clip_max_seconds?: number;
   subtitle_template?: string | null;
+};
+
+export type ApiClipListItem = {
+  id: string;
+  project_id: string;
+  project_name: string | null;
+  status: ApiClipStatus;
+  start_seconds: number | null;
+  end_seconds: number | null;
+  duration_seconds: number | null;
+  score: number | null;
+  reason: string | null;
+  title: string | null;
+  video_path: string | null;
+  subtitles_ass_path: string | null;
+  subtitles_srt_path: string | null;
+  created_at: string | null;
+  updated_at: string | null;
+};
+
+export type ApiClipsIndexResponse = {
+  data: ApiClipListItem[];
+};
+
+export type ApiClipDetail = {
+  id: string;
+  project: { id: string; name: string } | null;
+  status: ApiClipStatus;
+  start_seconds: number | null;
+  end_seconds: number | null;
+  duration_seconds: number | null;
+  score: number | null;
+  reason: string | null;
+  title: string | null;
+  video_path: string | null;
+  subtitles_ass_path: string | null;
+  subtitles_srt_path: string | null;
+  events: ApiPipelineEvent[];
+  created_at: string | null;
+  updated_at: string | null;
 };

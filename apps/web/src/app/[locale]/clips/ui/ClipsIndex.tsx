@@ -1,8 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { type ReactNode, useMemo, useState } from 'react';
+import { type ReactNode, useEffect, useMemo, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
+
+import type { ApiClipsIndexResponse, ApiClipStatus } from '@/lib/api/contracts';
 
 import type { AppLocale } from '@/i18n/locales';
 import { Badge } from '@/ui/primitives/Badge';
@@ -12,7 +14,7 @@ import { Input } from '@/ui/primitives/Input';
 import { buttonStyles } from '@/ui/primitives/buttonStyles';
 import { EmptyState } from '@/ui/shell/EmptyState';
 
-type ClipStatus = 'processing' | 'ready' | 'failed';
+type ClipStatus = ApiClipStatus;
 
 type ClipRow = {
   id: string;
@@ -20,44 +22,59 @@ type ClipRow = {
   projectName: string;
   status: ClipStatus;
   durationSec: number;
-  createdAt: string;
+  createdAt: string | null;
 };
-
-const mockClips: ClipRow[] = [
-  {
-    id: 'clip_0f2c',
-    title: 'Hook + payoff (30s)',
-    projectName: 'Best of Podcast #12',
-    status: 'ready',
-    durationSec: 31,
-    createdAt: new Date(Date.now() - 1000 * 60 * 22).toISOString(),
-  },
-  {
-    id: 'clip_aa19',
-    title: 'Founder story (45s)',
-    projectName: 'Interview Founder',
-    status: 'processing',
-    durationSec: 44,
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
-  },
-  {
-    id: 'clip_33b1',
-    title: 'Key takeaway (25s)',
-    projectName: 'YouTube Shorts — Compilation',
-    status: 'failed',
-    durationSec: 26,
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 19).toISOString(),
-  },
-];
 
 export function ClipsIndex() {
   const t = useTranslations('clips');
   const tClip = useTranslations('clip');
   const locale = useLocale() as AppLocale;
 
+  const [clips, setClips] = useState<ClipRow[] | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
   const [query, setQuery] = useState('');
   const [status, setStatus] = useState<'all' | ClipStatus>('all');
   const [view, setView] = useState<'table' | 'cards'>('table');
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function run() {
+      try {
+        setLoadError(null);
+        const res = await fetch('/api/clips');
+        const json = (await res.json()) as ApiClipsIndexResponse;
+        if (!res.ok) {
+          throw new Error('Failed to load clips.');
+        }
+
+        const rows: ClipRow[] = json.data.map((c) => ({
+          id: c.id,
+          title: c.title ?? c.id,
+          projectName: c.project_name ?? '—',
+          status: c.status,
+          durationSec: c.duration_seconds ? Math.round(c.duration_seconds) : 0,
+          createdAt: c.created_at,
+        }));
+
+        if (!cancelled) {
+          setClips(rows);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setLoadError(err instanceof Error ? err.message : 'Failed to load clips.');
+          setClips([]);
+        }
+      }
+    }
+
+    run();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const df = useMemo(
     () =>
@@ -68,10 +85,12 @@ export function ClipsIndex() {
     [locale]
   );
 
+  const allClips = clips ?? [];
+
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
 
-    return mockClips.filter((clip) => {
+    return allClips.filter((clip) => {
       if (status !== 'all' && clip.status !== status) return false;
       if (q.length === 0) return true;
 
@@ -81,9 +100,9 @@ export function ClipsIndex() {
         clip.projectName.toLowerCase().includes(q)
       );
     });
-  }, [query, status]);
+  }, [allClips, query, status]);
 
-  const hasAny = mockClips.length > 0;
+  const hasAny = allClips.length > 0;
 
   return (
     <Card>
@@ -91,7 +110,11 @@ export function ClipsIndex() {
         <div className="min-w-0">
           <CardTitle>{t('listTitle')}</CardTitle>
           <div className="mt-1 text-sm text-[var(--text-muted)]">
-            {hasAny ? t('count', { shown: filtered.length, total: mockClips.length }) : t('countEmpty')}
+            {clips === null
+              ? t('countEmpty')
+              : hasAny
+                ? t('count', { shown: filtered.length, total: allClips.length })
+                : t('countEmpty')}
           </div>
         </div>
 
@@ -108,8 +131,8 @@ export function ClipsIndex() {
             <FilterButton active={status === 'all'} onClick={() => setStatus('all')}>
               {t('filters.all')}
             </FilterButton>
-            <FilterButton active={status === 'processing'} onClick={() => setStatus('processing')}>
-              {t('filters.processing')}
+            <FilterButton active={status === 'pending'} onClick={() => setStatus('pending')}>
+              {t('filters.pending')}
             </FilterButton>
             <FilterButton active={status === 'ready'} onClick={() => setStatus('ready')}>
               {t('filters.ready')}
@@ -139,7 +162,15 @@ export function ClipsIndex() {
       </CardHeader>
 
       <CardContent>
-        {!hasAny ? (
+        {loadError ? (
+          <div className="rounded-xl border border-[color:var(--danger)]/30 bg-[var(--danger)]/10 p-4 text-sm text-[var(--danger)]">
+            {loadError}
+          </div>
+        ) : clips === null ? (
+          <div className="rounded-xl border border-[color:var(--border)] bg-[var(--surface-muted)] p-6 text-sm text-[var(--text-muted)]">
+            Loading…
+          </div>
+        ) : !hasAny ? (
           <EmptyState
             title={t('empty.title')}
             subtitle={t('empty.subtitle')}
@@ -189,7 +220,7 @@ export function ClipsIndex() {
                     <StatusBadge
                       status={clip.status}
                       labels={{
-                        processing: tClip('status.processing'),
+                        pending: tClip('status.pending'),
                         ready: tClip('status.ready'),
                         failed: tClip('status.failed'),
                       }}
@@ -199,7 +230,7 @@ export function ClipsIndex() {
                     {formatDuration(clip.durationSec)}
                   </div>
                   <div className="col-span-1 text-right text-xs text-[var(--text-muted)]">
-                    {df.format(new Date(clip.createdAt))}
+                    {clip.createdAt ? df.format(new Date(clip.createdAt)) : '—'}
                   </div>
                 </Link>
               ))}
@@ -223,7 +254,7 @@ export function ClipsIndex() {
                   <StatusBadge
                     status={clip.status}
                     labels={{
-                      processing: tClip('status.processing'),
+                      pending: tClip('status.pending'),
                       ready: tClip('status.ready'),
                       failed: tClip('status.failed'),
                     }}
@@ -239,7 +270,7 @@ export function ClipsIndex() {
                   </div>
                   <div className="text-right">
                     <div className="text-[var(--text-muted)]">{t('cards.created')}</div>
-                    <div className="mt-1 font-medium text-[var(--text)]">{df.format(new Date(clip.createdAt))}</div>
+                    <div className="mt-1 font-medium text-[var(--text)]">{clip.createdAt ? df.format(new Date(clip.createdAt)) : '—'}</div>
                   </div>
                 </div>
 
