@@ -43,14 +43,16 @@ class ProjectController
             [$clipMin, $clipMax] = [$clipMax, $clipMin];
         }
 
+        // Use request accessors for optional fields to avoid edge cases where
+        // validated payload may omit optional keys (e.g. false boolean values).
         $project = Project::query()->create([
             'name' => $data['name'],
             'youtube_url' => $data['youtube_url'],
-            'language' => $data['language'] ?? null,
-            'subtitles_enabled' => (bool) ($data['subtitles_enabled'] ?? true),
+            'language' => $request->input('language'),
+            'subtitles_enabled' => $request->boolean('subtitles_enabled', true),
             'clip_min_seconds' => $clipMin,
             'clip_max_seconds' => $clipMax,
-            'subtitle_template' => $data['subtitle_template'] ?? null,
+            'subtitle_template' => $request->input('subtitle_template'),
             'status' => ProjectStatus::queued,
         ]);
 
