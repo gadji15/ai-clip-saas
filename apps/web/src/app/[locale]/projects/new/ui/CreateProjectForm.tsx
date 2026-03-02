@@ -8,7 +8,7 @@ import { parseYoutubeVideoId } from '@/lib/youtube';
 import { Button } from '@/ui/primitives/Button';
 import { Input } from '@/ui/primitives/Input';
 import { Select } from '@/ui/primitives/Select';
-import { YouTubeEmbed } from '@/ui/shell/YouTubeEmbed';
+import { YouTubeEmbed } from '@/ui/shell/YoutubeEmbed';
 
 export function CreateProjectForm({ redirectLocale }: { redirectLocale: string }) {
   const t = useTranslations('projectNew');
