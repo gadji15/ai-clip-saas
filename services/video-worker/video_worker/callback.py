@@ -22,10 +22,11 @@ class ClipArtifact(BaseModel):
     end_seconds: float
     score: float
     reason: str | None = None
+    title: str | None = None
 
     video_path: str
-    subtitles_ass_path: str
-    subtitles_srt_path: str
+    subtitles_ass_path: str | None = None
+    subtitles_srt_path: str | None = None
 
 
 class JobArtifacts(BaseModel):

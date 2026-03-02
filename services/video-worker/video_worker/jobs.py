@@ -76,9 +76,28 @@ def process_job(
     youtube_url: str,
     callback_url: str,
     callback_secret: str,
+    language: str | None = None,
+    subtitles_enabled: bool | None = None,
+    subtitle_template: str | None = None,
+    clip_min_seconds: float | None = None,
+    clip_max_seconds: float | None = None,
+    max_clips: int | None = None,
 ) -> dict:
     settings = get_settings()
     logger = get_logger(service="video-worker", job_id=job_id, project_id=project_id)
+
+    effective_min_seconds = settings.clip_min_seconds if clip_min_seconds is None else float(clip_min_seconds)
+    effective_max_seconds = settings.clip_max_seconds if clip_max_seconds is None else float(clip_max_seconds)
+
+    # Product constraint: clips must be 1–3 minutes.
+    effective_min_seconds = max(60.0, effective_min_seconds)
+    effective_max_seconds = max(effective_min_seconds, min(180.0, effective_max_seconds))
+
+    effective_max_clips = settings.max_clips if max_clips is None else int(max_clips)
+    effective_subtitles_enabled = (
+        settings.subtitles_enabled if subtitles_enabled is None else bool(subtitles_enabled)
+    )
+    effective_subtitle_template = settings.subtitle_template if not subtitle_template else subtitle_template
 
     ctx = JobContext(
         job_id=job_id,
@@ -183,11 +202,12 @@ def process_job(
         )
         clips = segment_candidates(
             segments=segments,
-            min_seconds=settings.clip_min_seconds,
-            max_seconds=settings.clip_max_seconds,
-            max_clips=settings.max_clips,
+            min_seconds=effective_min_seconds,
+            max_seconds=effective_max_seconds,
+            max_clips=effective_max_clips,
             audio_path=ctx.audio_path,
             video_path=ctx.source_video_path,
+            language=language,
         )
         write_clips_json(clips=clips, output_path=ctx.clips_json_path)
 
@@ -209,7 +229,8 @@ def process_job(
             clips=clips,
             output_dir=ctx.clips_dir,
             logger=logger,
-            subtitle_template=settings.subtitle_template,
+            subtitles_enabled=effective_subtitles_enabled,
+            subtitle_template=effective_subtitle_template,
             target_fps=settings.target_fps,
             enable_loudnorm=settings.enable_loudnorm,
         )

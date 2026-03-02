@@ -61,7 +61,10 @@
       "optionsTitle": "Options",
       "optionsHint": "You’ll be able to fine-tune later (V1.1).",
       "languageLabel": "Language",
-      "clipLengthLabel": "Target length (sec)",
+      "clipLengthLabel": "Clip length (sec)",
+      "subtitlesLabel": "Subtitles",
+      "subtitlesOn": "On",
+      "subtitlesOff": "Off",
       "create": "Create project"
     }
   },
@@ -107,7 +110,15 @@
     "clips": {
       "title": "Clips",
       "subtitle": "Generated clips will appear here.",
-      "empty": "No clips yet."
+      "empty": "No clips yet.",
+      "subtitles": {
+        "on": "Subtitles",
+        "off": "No subtitles"
+      },
+      "titleSuggestion": "Suggested title",
+      "copyTitle": "Copy",
+      "copied": "Copied",
+      "open": "Open"
     }
   },
   "billing": {

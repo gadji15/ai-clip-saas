@@ -24,7 +24,10 @@ Common:
 - `VIDEO_WORKER_WHISPER_TEMPERATURE` (default: `0.0`)
 - `VIDEO_WORKER_WHISPER_BEAM_SIZE` (default: `1`)
 - `VIDEO_WORKER_WHISPER_BEST_OF` (default: `1`)
-- `VIDEO_WORKER_SUBTITLE_TEMPLATE` (default: `default`; one of `default`, `karaoke`)
+- `VIDEO_WORKER_CLIP_MIN_SECONDS` (default: `60`)
+- `VIDEO_WORKER_CLIP_MAX_SECONDS` (default: `180`)
+- `VIDEO_WORKER_SUBTITLES_ENABLED` (default: `true`)
+- `VIDEO_WORKER_SUBTITLE_TEMPLATE` (default: `modern`; one of `default`, `modern`, `karaoke`, `modern_karaoke`)
 - `VIDEO_WORKER_TARGET_FPS` (default: `30`)
 - `VIDEO_WORKER_ENABLE_LOUDNORM` (default: `false`)
 - `VIDEO_WORKER_LOG_LEVEL` (default: `INFO`)
@@ -92,7 +95,9 @@ Payload shape:
         "score": 0.82,
         "reason": "question_hook,pattern_interrupt",
         "video_path": "...",
-        "subtitles_ass_path": "..."
+        "subtitles_ass_path": "...",
+        "subtitles_srt_path": "...",
+        "title": "..."
       }
     ]
   },

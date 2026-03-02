@@ -30,6 +30,40 @@ def write_srt(*, segments: list[TranscriptSegment], output_path: Path) -> None:
     atomic_write_text(output_path, "\n".join(lines).rstrip() + "\n")
 
 
+def write_srt_for_clip(
+    *,
+    clip_start_seconds: float,
+    clip_end_seconds: float,
+    segments: list[TranscriptSegment],
+    output_path: Path,
+) -> None:
+    lines: list[str] = []
+    idx = 1
+
+    for seg in segments:
+        if seg.end_seconds <= clip_start_seconds:
+            continue
+        if seg.start_seconds >= clip_end_seconds:
+            break
+
+        start = max(seg.start_seconds, clip_start_seconds) - clip_start_seconds
+        end = min(seg.end_seconds, clip_end_seconds) - clip_start_seconds
+        if end <= start:
+            continue
+
+        text = seg.text.strip()
+        if not text:
+            continue
+
+        lines.append(str(idx))
+        lines.append(f"{_srt_ts(start)} --> {_srt_ts(end)}")
+        lines.append(text)
+        lines.append("")
+        idx += 1
+
+    atomic_write_text(output_path, "\n".join(lines).rstrip() + "\n")
+
+
 def _ass_ts(seconds: float) -> str:
     if seconds < 0:
         seconds = 0
@@ -80,6 +114,13 @@ def write_stylized_ass_for_clip(
 ) -> None:
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
+    template = (template or "default").lower().strip()
+
+    style_line = "Style: Default,Arial,58,&H00FFFFFF,&H000000FF,&H00101010,&H80000000,1,0,0,0,100,100,0,0,1,4,1,2,80,80,120,1"
+    if template in {"modern", "modern_karaoke"}:
+        # A cleaner, more modern look: slightly larger, stronger outline, and a safer bottom margin.
+        style_line = "Style: Default,Arial,62,&H00FFFFFF,&H000000FF,&H00101010,&H80000000,1,0,0,0,100,100,0,0,1,6,0,2,80,80,160,1"
+
     header = "\n".join(
         [
             "[Script Info]",
@@ -91,14 +132,12 @@ def write_stylized_ass_for_clip(
             "",
             "[V4+ Styles]",
             "Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding",
-            "Style: Default,Arial,58,&H00FFFFFF,&H000000FF,&H00101010,&H80000000,1,0,0,0,100,100,0,0,1,4,1,2,80,80,120,1",
+            style_line,
             "",
             "[Events]",
             "Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text",
         ]
     )
-
-    template = (template or "default").lower().strip()
 
     def karaoke_text(seg_text: str, *, duration_seconds: float) -> str:
         # ASS karaoke uses centiseconds.
@@ -129,7 +168,7 @@ def write_stylized_ass_for_clip(
         if end <= start:
             continue
 
-        if template == "karaoke":
+        if template in {"karaoke", "modern_karaoke"}:
             text = karaoke_text(seg.text, duration_seconds=(end - start))
         else:
             text = _wrap(seg.text)

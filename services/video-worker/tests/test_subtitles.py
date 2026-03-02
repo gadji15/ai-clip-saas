@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from video_worker.pipeline.subtitles import write_srt, write_stylized_ass_for_clip
+from video_worker.pipeline.subtitles import write_srt, write_srt_for_clip, write_stylized_ass_for_clip
 from video_worker.pipeline.types import TranscriptSegment
 
 
@@ -17,6 +17,25 @@ def test_write_srt(tmp_path) -> None:
     text = out.read_text(encoding="utf-8")
     assert "00:00:00,000 --> 00:00:01,230" in text
     assert "hello" in text
+
+
+def test_write_srt_for_clip_is_relative(tmp_path) -> None:
+    out = tmp_path / "clip.srt"
+    write_srt_for_clip(
+        clip_start_seconds=10.0,
+        clip_end_seconds=20.0,
+        segments=[
+            TranscriptSegment(9.0, 11.0, "before"),
+            TranscriptSegment(11.0, 12.0, "inside"),
+            TranscriptSegment(20.0, 22.0, "after"),
+        ],
+        output_path=out,
+    )
+
+    text = out.read_text(encoding="utf-8")
+    assert "00:00:00,000 --> 00:00:01,000" in text
+    assert "inside" in text
+    assert "after" not in text
 
 
 def test_write_ass_for_clip_is_relative(tmp_path) -> None:

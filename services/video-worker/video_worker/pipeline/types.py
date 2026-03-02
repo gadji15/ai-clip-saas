@@ -17,3 +17,4 @@ class ClipCandidate:
     end_seconds: float
     score: float
     reason: str
+    title: str | None = None

@@ -61,7 +61,10 @@
       "optionsTitle": "Options",
       "optionsHint": "Vous pourrez ajuster plus finement après (V1.1).",
       "languageLabel": "Langue",
-      "clipLengthLabel": "Longueur cible (sec)",
+      "clipLengthLabel": "Durée du clip (sec)",
+      "subtitlesLabel": "Sous-titres",
+      "subtitlesOn": "Activés",
+      "subtitlesOff": "Désactivés",
       "create": "Créer le projet"
     }
   },
@@ -107,7 +110,15 @@
     "clips": {
       "title": "Clips",
       "subtitle": "Les clips générés apparaîtront ici.",
-      "empty": "Aucun clip généré pour le moment."
+      "empty": "Aucun clip généré pour le moment.",
+      "subtitles": {
+        "on": "Sous-titres",
+        "off": "Sans sous-titres"
+      },
+      "titleSuggestion": "Titre suggéré",
+      "copyTitle": "Copier",
+      "copied": "Copié",
+      "open": "Ouvrir"
     }
   },
   "billing": {

@@ -11,6 +11,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/ui/primitives/Card";
+import { Skeleton } from "@/ui/primitives/skeleton";
+import { CopyButton } from "@/ui/shell/CopyButton";
 import { PageHeader } from "@/ui/shell/PageHeader";
 import { PipelineProgress } from "@/ui/shell/PipelineProgress";
 
@@ -47,22 +49,40 @@ export default async function ProjectDetailsPage({
 
   const clips = [
     {
-      id: "clip_a1",
-      title: "Hook + intro",
+      id: "clip_001",
       score: 0.86,
+      durationSeconds: 74,
+      subtitlesEnabled: true,
       status: "ready" as const,
+      viralTitle:
+        locale === "fr"
+          ? "Ne fais plus cette erreur (ça change tout)"
+          : "Stop making this mistake (it changes everything)",
+      videoUrl: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4",
     },
     {
-      id: "clip_b2",
-      title: "Key insight",
+      id: "clip_002",
       score: 0.77,
+      durationSeconds: 122,
+      subtitlesEnabled: false,
       status: "ready" as const,
+      viralTitle:
+        locale === "fr"
+          ? "Et si tu pouvais faire ça 2× plus vite ?"
+          : "What if you could do this 2× faster?",
+      videoUrl: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4",
     },
     {
-      id: "clip_c3",
-      title: "Closing",
+      id: "clip_003",
       score: 0.41,
+      durationSeconds: 98,
+      subtitlesEnabled: true,
       status: "pending" as const,
+      viralTitle:
+        locale === "fr"
+          ? "La partie que tout le monde rate"
+          : "The part everyone misses",
+      videoUrl: "",
     },
   ];
 
@@ -215,34 +235,70 @@ export default async function ProjectDetailsPage({
             {clips.length === 0 ? (
               <div className="text-sm text-[var(--text-muted)]">{t("clips.empty")}</div>
             ) : (
-              <div className="grid gap-3">
+              <div className="grid gap-4 sm:grid-cols-2">
                 {clips.map((c) => (
-                  <Link
+                  <div
                     key={c.id}
-                    href={`/${locale}/clips/${c.id}`}
-                    className="group rounded-xl border border-[color:var(--border)] bg-[var(--surface)] p-3 transition-colors hover:bg-[var(--surface-muted)] motion-reduce:transition-none"
+                    className="w-full max-w-[360px] rounded-xl border border-[color:var(--border)] bg-[var(--surface)] p-3"
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
-                        <div className="truncate text-sm font-medium text-[var(--text)]">
-                          {c.title}
+                        <div className="truncate text-sm font-semibold text-[var(--text)]">
+                          {c.viralTitle}
                         </div>
-                        <div className="mt-0.5 text-xs text-[var(--text-muted)]">
-                          {c.id}
+                        <div className="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-[var(--text-muted)]">
+                          <span>{c.id}</span>
+                          <span aria-hidden="true">•</span>
+                          <span>{formatDuration(c.durationSeconds)}</span>
+                          <span aria-hidden="true">•</span>
+                          <span>{Math.round(c.score * 100)}%</span>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Badge
-                          variant={c.status === "ready" ? "success" : "warning"}
-                        >
+                      <div className="flex shrink-0 flex-col items-end gap-2">
+                        <Badge variant={c.status === "ready" ? "success" : "warning"}>
                           {t(`clipStatus.${c.status}`)}
                         </Badge>
-                        <div className="text-xs font-medium text-[var(--text-muted)]">
-                          {Math.round(c.score * 100)}%
-                        </div>
+                        <Badge variant="secondary">
+                          {c.subtitlesEnabled ? t("clips.subtitles.on") : t("clips.subtitles.off")}
+                        </Badge>
                       </div>
                     </div>
-                  </Link>
+
+                    <div className="mt-3 overflow-hidden rounded-xl border border-[color:var(--border)] bg-[var(--surface-muted)]">
+                      <div className="aspect-[9/16]">
+                        {c.status === "ready" ? (
+                          <video
+                            controls
+                            preload="metadata"
+                            src={c.videoUrl}
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <Skeleton className="h-full w-full rounded-none" />
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="mt-3 grid gap-2">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="text-xs font-medium text-[var(--text-muted)]">
+                          {t("clips.titleSuggestion")}
+                        </div>
+                        <CopyButton
+                          text={c.viralTitle}
+                          label={t("clips.copyTitle")}
+                          copiedLabel={t("clips.copied")}
+                        />
+                      </div>
+                      <div className="text-sm font-medium text-[var(--text)]">{c.viralTitle}</div>
+                      <Link
+                        href={`/${locale}/clips/${c.id}`}
+                        className={buttonStyles({ variant: "ghost", size: "sm" })}
+                      >
+                        {t("clips.open")}
+                      </Link>
+                    </div>
+                  </div>
                 ))}
               </div>
             )}
@@ -270,6 +326,13 @@ function StatusBadge({
           : "secondary";
 
   return <Badge variant={variant}>{labels[status]}</Badge>;
+}
+
+function formatDuration(totalSeconds: number) {
+  const s = Math.max(0, Math.floor(totalSeconds));
+  const m = Math.floor(s / 60);
+  const r = s % 60;
+  return `${m}:${String(r).padStart(2, "0")}`;
 }
 
 

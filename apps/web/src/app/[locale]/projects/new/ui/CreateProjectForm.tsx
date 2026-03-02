@@ -17,7 +17,8 @@ export function CreateProjectForm({ redirectLocale }: { redirectLocale: string }
   const [name, setName] = useState('');
   const [url, setUrl] = useState('');
   const [language, setLanguage] = useState<'fr' | 'en'>('fr');
-  const [clipLength, setClipLength] = useState('30');
+  const [clipLength, setClipLength] = useState('60');
+  const [subtitles, setSubtitles] = useState<'on' | 'off'>('on');
 
   const videoId = useMemo(() => parseYoutubeVideoId(url), [url]);
   const urlOk = videoId !== null;
@@ -85,7 +86,7 @@ export function CreateProjectForm({ redirectLocale }: { redirectLocale: string }
         <div className="text-sm font-semibold text-[var(--text)]">{t('form.optionsTitle')}</div>
         <div className="mt-1 text-sm text-[var(--text-muted)]">{t('form.optionsHint')}</div>
 
-        <div className="mt-4 grid gap-4 sm:grid-cols-2">
+        <div className="mt-4 grid gap-4 sm:grid-cols-3">
           <div className="grid gap-2">
             <label className="text-xs font-medium text-[var(--text-muted)]">{t('form.languageLabel')}</label>
             <Select value={language} onChange={(e) => setLanguage(e.target.value as 'fr' | 'en')}>
@@ -98,9 +99,20 @@ export function CreateProjectForm({ redirectLocale }: { redirectLocale: string }
             <label className="text-xs font-medium text-[var(--text-muted)]">{t('form.clipLengthLabel')}</label>
             <Input
               inputMode="numeric"
+              min={60}
+              max={180}
               value={clipLength}
               onChange={(e) => setClipLength(e.target.value)}
             />
+            <div className="text-xs text-[var(--text-muted)]">60–180</div>
+          </div>
+
+          <div className="grid gap-2">
+            <label className="text-xs font-medium text-[var(--text-muted)]">{t('form.subtitlesLabel')}</label>
+            <Select value={subtitles} onChange={(e) => setSubtitles(e.target.value as 'on' | 'off')}>
+              <option value="on">{t('form.subtitlesOn')}</option>
+              <option value="off">{t('form.subtitlesOff')}</option>
+            </Select>
           </div>
         </div>
       </div>
