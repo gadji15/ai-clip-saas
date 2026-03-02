@@ -64,7 +64,19 @@ export function CreateProjectForm({ redirectLocale }: { redirectLocale: string }
 
         {videoId ? (
           <div className="pt-2 motion-reduce:animate-none sm:animate-[youtok-page-enter_200ms_ease-out]">
-            <YouTubeEmbed videoId={videoId} title={t('form.urlLabel')} />
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <div className="text-[11px] font-medium text-[var(--text-muted)]">Preview</div>
+                <div className="mt-1 text-xs text-[var(--text-muted)]">
+                  {t('form.urlValid')}
+                </div>
+              </div>
+              <YouTubeEmbed
+                videoId={videoId}
+                title={t('form.urlLabel')}
+                size="sm"
+              />
+            </div>
           </div>
         ) : null}
       </div>
