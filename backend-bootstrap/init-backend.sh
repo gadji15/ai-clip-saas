@@ -35,6 +35,12 @@ if [ "$(id -u)" = "0" ]; then
     export BACKEND_INIT_DROPPED_PRIVS=1
     exec gosu "${DOCKER_UID:-1000}:${DOCKER_GID:-1000}" /bin/bash /bootstrap/init-backend.sh
   fi
+
+  echo "[backend_init] WARNING: gosu not found; backend files may end up owned by root" >&2
+
+  # If gosu isn't available for some reason, make a best-effort to avoid leaving
+  # unreadable root-owned files behind.
+  umask 002
 fi
 
 echo "[backend_init] ensuring Laravel project exists in /var/www/backend" >&2
@@ -244,5 +250,11 @@ php artisan migrate --force
 
 echo "[backend_init] seeding" >&2
 php artisan db:seed --force
+
+# Final permission fix in case any step created root-owned files.
+if [ "$(id -u)" = "0" ]; then
+  chown -R "${DOCKER_UID:-1000}":"${DOCKER_GID:-1000}" /var/www/backend || true
+  chmod -R ug+rwX /var/www/backend || true
+fi
 
 echo "[backend_init] done" >&2
