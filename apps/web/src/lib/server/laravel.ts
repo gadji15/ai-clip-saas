@@ -7,7 +7,9 @@ type LaravelConfig = {
 
 export function getLaravelConfig(): LaravelConfig {
   return {
-    baseUrl: process.env.LARAVEL_BASE_URL ?? 'http://localhost:8080',
+    // Use 127.0.0.1 rather than localhost to avoid IPv6/::1 resolution issues on some setups.
+    // You can override via LARAVEL_BASE_URL.
+    baseUrl: process.env.LARAVEL_BASE_URL ?? 'http://127.0.0.1:8080',
     internalApiSecret: process.env.INTERNAL_API_SECRET ?? 'change-me',
   };
 }
@@ -23,9 +25,16 @@ export async function laravelInternalFetch(
   headers.set('Accept', 'application/json');
   headers.set('X-Internal-Secret', internalApiSecret);
 
-  return fetch(url, {
-    ...init,
-    headers,
-    cache: init.cache ?? 'no-store',
-  });
+  try {
+    return await fetch(url, {
+      ...init,
+      headers,
+      cache: init.cache ?? 'no-store',
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    throw new Error(`laravelInternalFetch failed (${url.toString()}): ${message}`, {
+      cause: error,
+    });
+  }
 }
