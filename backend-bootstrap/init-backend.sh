@@ -163,6 +163,15 @@ fi
 
 # Apply repo-managed overrides (controllers, models, routes, etc.)
 # We use tar to avoid requiring rsync in the container.
+#
+# Cleanup for legacy/accidental file placements from earlier iterations.
+# If a previous boot wrote the API controller into the non-API path, it will
+# conflict at runtime with the correct Api\ProjectController.
+if [ -f app/Http/Controllers/ProjectController.php ] && grep -Fq 'namespace App\Http\Controllers\Api;' app/Http/Controllers/ProjectController.php; then
+  echo "[backend_init] removing legacy misplaced Api\\ProjectController" >&2
+  rm -f app/Http/Controllers/ProjectController.php
+fi
+
 echo "[backend_init] applying backend overrides" >&2
 mkdir -p /var/www/backend
 
