@@ -35,6 +35,13 @@ class VideoWorkerClient
                 'youtube_url' => $project->youtube_url,
                 'callback_url' => $callbackUrl,
                 'callback_secret' => $callbackSecret,
+
+                // Options (stored on Project so retries are deterministic)
+                'language' => $project->language,
+                'subtitles_enabled' => (bool) ($project->subtitles_enabled ?? true),
+                'clip_min_seconds' => (int) ($project->clip_min_seconds ?? 60),
+                'clip_max_seconds' => (int) ($project->clip_max_seconds ?? 180),
+                'subtitle_template' => $project->subtitle_template,
             ],
         );
 

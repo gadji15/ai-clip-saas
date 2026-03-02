@@ -34,6 +34,7 @@ class Clip extends Model
         'end_seconds',
         'score',
         'reason',
+        'title',
         'status',
         'video_path',
         'subtitles_ass_path',

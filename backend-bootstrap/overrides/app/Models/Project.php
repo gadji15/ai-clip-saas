@@ -16,6 +16,13 @@ class Project extends Model
     protected $fillable = [
         'name',
         'youtube_url',
+
+        'language',
+        'subtitles_enabled',
+        'clip_min_seconds',
+        'clip_max_seconds',
+        'subtitle_template',
+
         'status',
         'stage',
         'progress_percent',
@@ -32,6 +39,9 @@ class Project extends Model
     protected $casts = [
         'status' => ProjectStatus::class,
         'progress_percent' => 'integer',
+        'subtitles_enabled' => 'boolean',
+        'clip_min_seconds' => 'integer',
+        'clip_max_seconds' => 'integer',
     ];
 
     public function clips(): HasMany

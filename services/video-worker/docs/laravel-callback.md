@@ -28,8 +28,10 @@ Top-level fields:
     - `end_seconds` (number)
     - `score` (number)
     - `reason` (string|null)
+    - `title` (string|null)
     - `video_path` (string)
-    - `subtitles_ass_path` (string)
+    - `subtitles_srt_path` (string|null)
+    - `subtitles_ass_path` (string|null)
 - `error` (string|null)
 
 ## Laravel implementation sketch
@@ -105,8 +107,10 @@ class VideoWorkerCallbackController extends Controller
             'artifacts.clips.*.end_seconds' => ['required_with:artifacts.clips', 'numeric'],
             'artifacts.clips.*.score' => ['required_with:artifacts.clips', 'numeric'],
             'artifacts.clips.*.reason' => ['nullable', 'string'],
+            'artifacts.clips.*.title' => ['nullable', 'string'],
             'artifacts.clips.*.video_path' => ['required_with:artifacts.clips', 'string'],
-            'artifacts.clips.*.subtitles_ass_path' => ['required_with:artifacts.clips', 'string'],
+            'artifacts.clips.*.subtitles_srt_path' => ['nullable', 'string'],
+            'artifacts.clips.*.subtitles_ass_path' => ['nullable', 'string'],
         ]);
 
         DB::transaction(function () use ($data) {
@@ -143,8 +147,10 @@ class VideoWorkerCallbackController extends Controller
                         'end_seconds' => $clip['end_seconds'],
                         'score' => $clip['score'],
                         'reason' => $clip['reason'] ?? null,
+                        'title' => $clip['title'] ?? null,
                         'video_path' => $clip['video_path'],
-                        'subtitles_ass_path' => $clip['subtitles_ass_path'],
+                        'subtitles_srt_path' => $clip['subtitles_srt_path'] ?? null,
+                        'subtitles_ass_path' => $clip['subtitles_ass_path'] ?? null,
                     ]);
                 }
             }

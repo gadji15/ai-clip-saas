@@ -12,4 +12,6 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::middleware('internal.secret')->post('/projects', [ProjectController::class, 'store']);
+Route::middleware('internal.secret')->get('/projects/{project}', [ProjectController::class, 'show']);
+
 Route::middleware('worker.callback')->post('/worker/callback', [WorkerCallbackController::class, 'store']);

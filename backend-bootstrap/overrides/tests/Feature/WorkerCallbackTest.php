@@ -164,6 +164,7 @@ class WorkerCallbackTest extends TestCase
                             'end_seconds' => 4.25,
                             'score' => 0.5,
                             'reason' => 'interesting',
+                            'title' => 'Un hook viral pour tester',
                             'video_path' => '/shared/c1.mp4',
                             'subtitles_ass_path' => '/shared/c1.ass',
                             'subtitles_srt_path' => '/shared/c1.srt',
@@ -183,6 +184,7 @@ class WorkerCallbackTest extends TestCase
         $this->assertNotNull($clip);
         $this->assertSame(ClipStatus::ready, $clip->status);
         $this->assertSame('/shared/c1.mp4', $clip->video_path);
+        $this->assertSame('Un hook viral pour tester', $clip->title);
     }
 
     public function test_worker_callback_does_not_overwrite_progress_after_completion(): void

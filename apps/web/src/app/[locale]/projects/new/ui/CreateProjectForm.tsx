@@ -17,12 +17,20 @@ export function CreateProjectForm({ redirectLocale }: { redirectLocale: string }
   const [name, setName] = useState('');
   const [url, setUrl] = useState('');
   const [language, setLanguage] = useState<'fr' | 'en'>('fr');
-  const [clipLength, setClipLength] = useState('60');
-  const [subtitles, setSubtitles] = useState<'on' | 'off'>('on');
+  const [clipLength, setClipLength] = useState('180');
+  const [subtitlesEnabled, setSubtitlesEnabled] = useState(true);
+
+  const clipMaxSeconds = useMemo(() => {
+    const n = Number.parseInt(clipLength, 10);
+    return Number.isFinite(n) ? n : NaN;
+  }, [clipLength]);
+
+  const clipLengthOk =
+    Number.isFinite(clipMaxSeconds) && clipMaxSeconds >= 60 && clipMaxSeconds <= 180;
 
   const videoId = useMemo(() => parseYoutubeVideoId(url), [url]);
   const urlOk = videoId !== null;
-  const canSubmit = urlOk;
+  const canSubmit = urlOk && clipLengthOk;
 
   function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -108,8 +116,13 @@ export function CreateProjectForm({ redirectLocale }: { redirectLocale: string }
           </div>
 
           <div className="grid gap-2">
-            <label className="text-xs font-medium text-[var(--text-muted)]">{t('form.subtitlesLabel')}</label>
-            <Select value={subtitles} onChange={(e) => setSubtitles(e.target.value as 'on' | 'off')}>
+            <label className="text-xs font-medium text-[var(--text-muted)]">
+              {t('form.subtitlesLabel')}
+            </label>
+            <Select
+              value={subtitlesEnabled ? 'on' : 'off'}
+              onChange={(e) => setSubtitlesEnabled(e.target.value === 'on')}
+            >
               <option value="on">{t('form.subtitlesOn')}</option>
               <option value="off">{t('form.subtitlesOff')}</option>
             </Select>
