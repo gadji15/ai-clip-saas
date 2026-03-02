@@ -173,7 +173,7 @@ fi
 # Cleanup for legacy/accidental file placements from earlier iterations.
 # If a previous boot wrote the API controller into the non-API path, it will
 # conflict at runtime with the correct Api\ProjectController.
-if [ -f app/Http/Controllers/ProjectController.php ] && grep -Fq 'namespace App\Http\Controllers\Api;' app/Http/Controllers/ProjectController.php; then
+if [ -f app/Http/Controllers/ProjectController.php ] && grep -Eqi "namespace[[:space:]]+App\\Http\\Controllers\\Api" app/Http/Controllers/ProjectController.php; then
   echo "[backend_init] removing legacy misplaced Api\\ProjectController" >&2
   rm -f app/Http/Controllers/ProjectController.php
 fi
@@ -191,6 +191,12 @@ for src in /bootstrap/overrides/app/Http/Controllers/Api/*.php; do
     cp -f "$src" "app/Http/Controllers/Api/$(basename "$src")"
   fi
 done
+
+# Also force the web ProjectController override, as earlier iterations may have
+# accidentally written an Api\\ProjectController into the web path.
+if [ -f /bootstrap/overrides/app/Http/Controllers/ProjectController.php ]; then
+  cp -f /bootstrap/overrides/app/Http/Controllers/ProjectController.php app/Http/Controllers/ProjectController.php
+fi
 
 # If an older ProjectController was persisted without index(), patch it in-place.
 if [ -f app/Http/Controllers/Api/ProjectController.php ] && ! grep -q "function index" app/Http/Controllers/Api/ProjectController.php; then
