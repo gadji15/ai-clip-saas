@@ -183,11 +183,55 @@ mkdir -p /var/www/backend
 
 tar -C /bootstrap/overrides -cf - . | tar -C /var/www/backend -xf -
 
-# Some earlier bootstraps ended up with an Api\ProjectController without index().
-# Ensure the internal API listing endpoint exists.
+# The overrides directory is the source of truth for API controllers.
+# Copy them explicitly to avoid any "partial copy" edge cases.
+mkdir -p app/Http/Controllers/Api
+for src in /bootstrap/overrides/app/Http/Controllers/Api/*.php; do
+  if [ -f "$src" ]; then
+    cp -f "$src" "app/Http/Controllers/Api/$(basename "$src")"
+  fi
+done
+
+# If an older ProjectController was persisted without index(), patch it in-place.
 if [ -f app/Http/Controllers/Api/ProjectController.php ] && ! grep -q "function index" app/Http/Controllers/Api/ProjectController.php; then
-  echo "[backend_init] patching missing index() in Api\\ProjectController" >&2
-  cp /bootstrap/overrides/app/Http/Controllers/Api/ProjectController.php app/Http/Controllers/Api/ProjectController.php
+  echo "[backend_init] adding missing index() to Api\\ProjectController" >&2
+
+  tmp="$(mktemp)"
+  awk '
+    BEGIN { inserted = 0 }
+    /^}$/ && inserted == 0 {
+      print ""
+      print "    public function index(Request $request): JsonResponse"
+      print "    {"
+      print "        $projects = Project::query()"
+      print "            ->orderByDesc('updated_at')"
+      print "            ->limit(200)"
+      print "            ->get();"
+      print ""
+      print "        return response()->json(["
+      print "            'data' => $projects->map(static fn (Project $project): array => ["
+      print "                'id' => (string) $project->id,"
+      print "                'name' => $project->name,"
+      print "                'youtube_url' => $project->youtube_url,"
+      print "                'status' => $project->status->value,"
+      print "                'stage' => $project->stage,"
+      print "                'progress_percent' => $project->progress_percent,"
+      print "                'updated_at' => $project->updated_at?->toISOString(),"
+      print "                'created_at' => $project->created_at?->toISOString(),"
+      print "            ])->values(),"
+      print "        ]);"
+      print "    }"
+      print ""
+      inserted = 1
+    }
+    { print }
+  ' app/Http/Controllers/Api/ProjectController.php > "$tmp"
+  mv "$tmp" app/Http/Controllers/Api/ProjectController.php
+fi
+
+# Ensure ProjectAssetController exists if routes reference it.
+if [ ! -f app/Http/Controllers/Api/ProjectAssetController.php ] && [ -f /bootstrap/overrides/app/Http/Controllers/Api/ProjectAssetController.php ]; then
+  cp -f /bootstrap/overrides/app/Http/Controllers/Api/ProjectAssetController.php app/Http/Controllers/Api/ProjectAssetController.php
 fi
 
 # Guard against accidental "- >" sequences that break PHP parsing in Blade.
