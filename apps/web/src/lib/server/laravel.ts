@@ -33,8 +33,20 @@ export async function laravelInternalFetch(
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    throw new Error(`laravelInternalFetch failed (${url.toString()}): ${message}`, {
-      cause: error,
-    });
+
+    const maybeCause = (error instanceof Error ? (error as any).cause : undefined) as unknown;
+    const causeMessage =
+      maybeCause instanceof Error
+        ? maybeCause.message
+        : typeof maybeCause === 'string'
+          ? maybeCause
+          : null;
+
+    throw new Error(
+      `laravelInternalFetch failed (${url.toString()}): ${message}${causeMessage ? ` (${causeMessage})` : ''}`,
+      {
+        cause: error,
+      }
+    );
   }
 }
