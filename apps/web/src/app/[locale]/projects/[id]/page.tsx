@@ -11,8 +11,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/ui/primitives/Card";
-import { Progress } from "@/ui/primitives/Progress";
 import { PageHeader } from "@/ui/shell/PageHeader";
+import { PipelineProgress } from "@/ui/shell/PipelineProgress";
 
 type ProjectStatus = "queued" | "processing" | "completed" | "failed";
 
@@ -129,13 +129,23 @@ export default async function ProjectDetailsPage({
                   </div>
                 </div>
               </div>
-              <div className="mt-3">
-                <Progress value={progress} />
+              <div className="mt-4">
+                <PipelineProgress
+                  value={progress}
+                  stages={stages.map((s) => ({
+                    key: s,
+                    label: t(`stages.${s}`),
+                    status:
+                      status === "failed" && s === stage
+                        ? "failed"
+                        : stages.indexOf(s) < stages.indexOf(stage)
+                          ? "done"
+                          : s === stage
+                            ? "active"
+                            : "pending",
+                  }))}
+                />
               </div>
-            </div>
-
-            <div className="mt-5">
-              <Stepper current={stage} getLabel={(s) => t(`stages.${s}`)} />
             </div>
           </CardContent>
         </Card>
@@ -262,37 +272,4 @@ function StatusBadge({
   return <Badge variant={variant}>{labels[status]}</Badge>;
 }
 
-function Stepper({
-  current,
-  getLabel,
-}: {
-  current: Stage;
-  getLabel: (stage: Stage) => string;
-}) {
-  const currentIndex = stages.indexOf(current);
 
-  return (
-    <ol className="grid gap-2 sm:grid-cols-5">
-      {stages.map((s, idx) => {
-        const done = idx < currentIndex;
-        const active = idx === currentIndex;
-
-        return (
-          <li
-            key={s}
-            className={
-              "rounded-lg border px-3 py-2 text-xs font-medium transition-colors motion-reduce:transition-none " +
-              (done
-                ? "border-[color:var(--border)] bg-[var(--success-soft)] text-[var(--text)]"
-                : active
-                  ? "border-[color:var(--border)] bg-[var(--accent-soft)] text-[var(--text)]"
-                  : "border-[color:var(--border)] bg-[var(--surface)] text-[var(--text-muted)]")
-            }
-          >
-            {getLabel(s)}
-          </li>
-        );
-      })}
-    </ol>
-  );
-}

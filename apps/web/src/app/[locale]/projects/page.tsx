@@ -5,14 +5,19 @@ import { Badge } from "@/ui/primitives/Badge";
 import { buttonStyles } from "@/ui/primitives/buttonStyles";
 import { Card, CardContent, CardHeader, CardTitle } from "@/ui/primitives/Card";
 import { Input } from "@/ui/primitives/Input";
+import { Progress } from "@/ui/primitives/Progress";
 import { PageHeader } from "@/ui/shell/PageHeader";
 
 type ProjectStatus = "queued" | "processing" | "completed" | "failed";
+
+type Stage = "download" | "transcribe" | "segment" | "render" | "done";
 
 type ProjectRow = {
   id: string;
   name: string;
   status: ProjectStatus;
+  stage: Stage;
+  progress: number;
   updatedAt: string;
 };
 
@@ -21,18 +26,24 @@ const mockProjects: ProjectRow[] = [
     id: "proj_8f2c",
     name: "Best of Podcast #12",
     status: "processing",
+    stage: "transcribe",
+    progress: 42,
     updatedAt: new Date(Date.now() - 1000 * 60 * 12).toISOString(),
   },
   {
     id: "proj_1aa9",
     name: "YouTube Shorts — Compilation",
     status: "completed",
+    stage: "done",
+    progress: 100,
     updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString(),
   },
   {
     id: "proj_33b1",
     name: "Interview Founder",
     status: "failed",
+    stage: "render",
+    progress: 72,
     updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 28).toISOString(),
   },
 ];
@@ -96,6 +107,12 @@ export default async function ProjectsPage({
                     </div>
                     <div className="mt-0.5 truncate text-xs text-[var(--text-muted)]">
                       {p.id}
+                    </div>
+                    <div className="mt-2 flex items-center gap-2">
+                      <Progress value={p.progress} className="h-1.5" />
+                      <div className="shrink-0 text-[11px] font-medium text-[var(--text-muted)]">
+                        {tProject(`stages.${p.stage}`)}
+                      </div>
                     </div>
                   </div>
                   <div className="col-span-3">

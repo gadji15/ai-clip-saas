@@ -4,21 +4,11 @@ import { type FormEvent, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 
+import { parseYoutubeVideoId } from '@/lib/youtube';
 import { Button } from '@/ui/primitives/Button';
 import { Input } from '@/ui/primitives/Input';
 import { Select } from '@/ui/primitives/Select';
-
-function isValidYoutubeUrl(value: string) {
-  try {
-    const url = new URL(value);
-    return (
-      url.hostname.includes('youtube.com') ||
-      url.hostname === 'youtu.be'
-    );
-  } catch {
-    return false;
-  }
-}
+import { YouTubeEmbed } from '@/ui/shell/YouTubeEmbed';
 
 export function CreateProjectForm({ redirectLocale }: { redirectLocale: string }) {
   const t = useTranslations('projectNew');
@@ -29,7 +19,8 @@ export function CreateProjectForm({ redirectLocale }: { redirectLocale: string }
   const [language, setLanguage] = useState<'fr' | 'en'>('fr');
   const [clipLength, setClipLength] = useState('30');
 
-  const urlOk = useMemo(() => (url.trim().length === 0 ? false : isValidYoutubeUrl(url.trim())), [url]);
+  const videoId = useMemo(() => parseYoutubeVideoId(url), [url]);
+  const urlOk = videoId !== null;
   const canSubmit = urlOk;
 
   function onSubmit(e: FormEvent) {
@@ -70,6 +61,12 @@ export function CreateProjectForm({ redirectLocale }: { redirectLocale: string }
         >
           {url.length === 0 ? ' ' : urlOk ? t('form.urlValid') : t('form.urlInvalid')}
         </div>
+
+        {videoId ? (
+          <div className="pt-2 motion-reduce:animate-none sm:animate-[youtok-page-enter_200ms_ease-out]">
+            <YouTubeEmbed videoId={videoId} title={t('form.urlLabel')} />
+          </div>
+        ) : null}
       </div>
 
       <div className="rounded-xl border border-[color:var(--border)] bg-[var(--surface-muted)] p-4">
